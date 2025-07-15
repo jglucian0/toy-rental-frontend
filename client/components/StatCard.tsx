@@ -5,7 +5,7 @@ interface StatCardProps {
   borderColor: string;
   trend?: {
     icon: React.ReactNode;
-    value: string;
+    value: React.ReactNode;
     label: string;
   };
 }

@@ -6,12 +6,12 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   return (
-    <div className="flex min-h-screen w-full bg-[#f8fafc] font-exo">
+    <div className="flex h-screen w-full bg-[#f8fafc] font-exo overflow-hidden">
       {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content */}
-      <div className="flex flex-col items-start gap-4 flex-1 p-10 pb-20 bg-[#f8fafc]">
+      {/* Main Content que rola verticalmente */}
+      <div className="flex flex-col items-start gap-4 flex-1 px-10 pb-20 bg-[#f8fafc] pt-[80px] md:pt-[40px] overflow-y-auto overflow-x-hidden">
         {children}
       </div>
     </div>

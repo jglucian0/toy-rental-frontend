@@ -123,7 +123,7 @@ export interface UpdatePartyRequest {
 /**
  * Client status types
  */
-export type ClientStatus = "active" | "inactive" | "vip";
+export type ClientStatus = "active" | "inactive";
 
 /**
  * Client interface

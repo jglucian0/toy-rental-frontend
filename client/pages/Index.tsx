@@ -2,6 +2,12 @@ import { Layout } from "@/components/Layout";
 import { StatCard } from "@/components/StatCard";
 import { Calendar } from "@/components/ui/calendar";
 import { useState, useEffect, useRef } from "react";
+import { Menu } from "@headlessui/react";
+import {
+  CheckCircleIcon,
+  ClockIcon,
+  CalendarIcon,
+} from "@heroicons/react/20/solid";
 
 export default function Index() {
   const [selectedDate, setSelectedDate] = useState(() => {
@@ -13,6 +19,7 @@ export default function Index() {
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const datePickerRef = useRef<HTMLDivElement>(null);
+  
 
   // Close date picker when clicking outside
   useEffect(() => {
@@ -32,61 +39,146 @@ export default function Index() {
   }, []);
 
   // Sample party data
-  const sampleParties = [
-    {
-      id: 1,
-      clientName: "Maria Luiza",
-      phone: "(43) 99614-2131",
-      time: "19:00",
-      date: "2025-07-10",
-      status: "completed",
-      statusText: "Finalizado",
-      statusColor: "bg-[#dcfce7] text-[#166534]",
-      totalValue: "R$ 430,00",
-      items: ["Cama Elástica (1)", "Tobogã Inflável (1)"],
-      backgroundColor: "bg-[#faf5ff]",
+  const [locacoes, setLocacoes] = useState([]);
+
+  useEffect(() => {
+    const fetchLocacoes = async () => {
+      try {
+      const response = await fetch("http://localhost:8000/api/locacoes-hoje/");
+      const data = await response.json();
+      setLocacoes(data);
+      } catch (error) {
+        console.error("Erro ao buscar locações:", error);
+      }
+    };
+
+  fetchLocacoes();
+  }, []);
+
+const formatTelefone = (tel: string) => {
+  if (tel.length === 11) {
+    return `(${tel.slice(0, 2)}) ${tel.slice(2, 7)}-${tel.slice(7)}`;
+  }
+  return tel;
+};
+
+const mapApiToParty = (locacao: any) => {
+  const statusMap: Record<string, { text: string; color: string }> = {
+    pendente: {
+      text: "Pendente",
+      color: "bg-[#fef9c3] text-[#854d0e]",
     },
-    {
-      id: 2,
-      clientName: "João Gabriel",
-      phone: "(43) 99614-2131",
-      time: "23:00",
-      date: "2025-07-10",
-      status: "delivered",
-      statusText: "Entregue",
-      statusColor: "bg-[#f3e8ff] text-[#6b21a8]",
-      totalValue: "R$ 430,00",
-      items: ["Cama Elástica (1)", "Tobogã Inflável (1)"],
-      backgroundColor: "bg-white border border-[#f3e8ff]",
+    confirmado: {
+      text: "Confirmado",
+      color: "bg-[#f3e8ff] text-[#6b21a8]",
     },
-    {
-      id: 3,
-      clientName: "Maria Luiza",
-      phone: "(43) 99614-2131",
-      time: "23:00",
-      date: "2025-07-10",
-      status: "pending",
-      statusText: "Pendente",
-      statusColor: "bg-[#fef9c3] text-[#854d0e]",
-      totalValue: "R$ 430,00",
-      items: ["Cama Elástica (1)", "Tobogã Inflável (1)"],
-      backgroundColor: "bg-[#faf5ff]",
+    finalizado: {
+      text: "Finalizado",
+      color: "bg-[#dcfce7] text-[#166534]",
     },
-  ];
+
+  
+  };
+  
+
+  const rawStatus = String(locacao.status).toLowerCase().trim();
+  const statusInfo = statusMap[rawStatus] || statusMap["pendente"];
+
+  return {
+    id: locacao.id,
+    cliente: locacao.cliente.nome,
+    telefone: formatTelefone(locacao.cliente.telefone),
+    hora_festa: locacao.hora_festa.slice(0, 5),
+    data_festa: locacao.data_festa,
+    status: rawStatus,
+    statusText: statusInfo.text,
+    statusColor: statusInfo.color,
+    valor_total: `R$ ${parseFloat(locacao.valor_total).toFixed(2).replace(".", ",")}`,
+    items: locacao.brinquedos.map((b: any) => `${b.nome} (1)`),
+
+    statusComponent: (
+      <StatusCell
+        currentStatus={locacao.status}
+        festaId={locacao.id}
+        onUpdate={(newStatus) => {
+          // atualiza a lista de festas localmente (opcional)
+          setLocacoes((prev) =>
+            prev.map((f) =>
+              f.id === locacao.id ? { ...f, status: newStatus } : f
+            )
+          );
+        }}
+      />
+    )
+  };
+};
+
+
+
+const mappedParties = locacoes.map(mapApiToParty);
 
   // Filter parties by selected date
-  const filteredParties = sampleParties.filter(
-    (party) => party.date === selectedDate,
+  const filteredParties = mappedParties.filter(
+    (party) => party.data_festa === selectedDate
   );
 
   // Calculate today's stats
-  const today = new Date().toISOString().split("T")[0];
-  const todaysParties = sampleParties.filter((party) => party.date === today);
+  const today = (() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  })();
+  const todaysParties = mappedParties.filter(
+    (party) => party.data_festa === today
+  );
   const todaysRevenue = todaysParties.reduce(
     (sum, party) =>
-      sum + parseFloat(party.totalValue.replace("R$ ", "").replace(",", ".")),
+      sum + parseFloat(party.valor_total.replace("R$ ", "").replace(",", ".")),
     0,
   );
+
+  // Obter ano e mês atual
+const currentYear = new Date().getFullYear();
+const currentMonth = new Date().getMonth() + 1; // Janeiro = 0, então somamos 1
+
+// Filtrar festas do mês
+const monthlyParties = mappedParties.filter((party) => {
+  const [year, month] = party.data_festa.split("-").map(Number);
+  return year === currentYear && month === currentMonth;
+});
+
+const monthlyRevenue = monthlyParties.reduce(
+  (sum, party) =>
+    sum + parseFloat(party.valor_total.replace("R$ ", "").replace(",", ".")),
+  0
+);
+
+const prevMonthDate = new Date();
+prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
+
+  const prevMonth = prevMonthDate.getMonth() + 1;
+  const prevYear = prevMonthDate.getFullYear();
+
+  const previousMonthlyParties = mappedParties.filter((party) => {
+    const [year, month] = party.data_festa.split("-").map(Number);
+    return year === prevYear && month === prevMonth;
+  });
+
+  const previousMonthlyRevenue = previousMonthlyParties.reduce(
+  (sum, party) =>
+    sum + parseFloat(party.valor_total.replace("R$ ", "").replace(",", ".")),
+  0
+);
+
+  const festaVariation = previousMonthlyParties.length === 0
+  ? 100
+  : ((monthlyParties.length - previousMonthlyParties.length) / previousMonthlyParties.length) * 100;
+
+  const rendaVariation = previousMonthlyRevenue === 0
+  ? 100
+  : ((monthlyRevenue - previousMonthlyRevenue) / previousMonthlyRevenue) * 100;
 
   // Format date for display (DD/MM)
   const formatDisplayDate = (dateString: string) => {
@@ -155,6 +247,22 @@ export default function Index() {
     </svg>
   );
 
+  const TrendDownIcon = () => (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-4 h-4"
+    >
+      <path
+        d="M13.9094 6.95312L14.6031 7.64688C14.8969 7.94063 14.8969 8.41563 14.6031 8.70624L8.53125 14.7812C8.2375 15.075 7.7625 15.075 7.47188 14.7812L1.4 8.70937C1.10625 8.41563 1.10625 7.94063 1.4 7.65L2.09375 6.95625C2.39063 6.65937 2.875 6.66562 3.16562 6.96874L6.75 10.7312V1.75C6.75 1.33438 7.08438 1 7.5 1H8.5C8.91562 1 9.25 1.33438 9.25 1.75V10.7312L12.8375 6.96563C13.1281 6.65937 13.6125 6.65312 13.9094 6.95312Z"
+        fill="#EF4444"
+      />
+    </svg>
+  );
+
   const CalendarIcon = () => (
     <svg
       width="17"
@@ -195,10 +303,113 @@ export default function Index() {
     </svg>
   );
 
+  const TrendIcon = (value: number) =>
+    value >= 0 ? <TrendUpIcon /> : <TrendDownIcon />;
+
+  const formattedVariation =
+  festaVariation >= 0
+    ? `+${festaVariation.toFixed(0)}%`
+    : `${festaVariation.toFixed(0)}%`;
+
+  const variationColor = Number(festaVariation) >= 0 ? "text-green-500" : "text-red-500";
+
+  const statusOptions = [
+    { value: "pendente", label: "Pendente", icon: ClockIcon },
+    { value: "confirmado", label: "Confirmado", icon: CalendarIcon },
+    { value: "finalizado", label: "Finalizado", icon: CheckCircleIcon },
+  ];
+
+  function StatusCell({ currentStatus, festaId, onUpdate }) {
+    const [status, setStatus] = useState(currentStatus);
+  
+    const updateStatus = async (newStatus: string) => {
+      try {
+        const response = await fetch(
+          `http://localhost:8000/api/locacoes/${festaId}/status/`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: newStatus }),
+          }
+        );
+  
+        if (response.ok) {
+          setStatus(newStatus);
+          onUpdate(newStatus);
+        } else {
+          alert("Erro ao atualizar status.");
+        }
+      } catch (error) {
+        console.error("Erro na atualização:", error);
+      }
+    };
+  
+    const selected = statusOptions.find((s) => s.value === status);
+  
+    return (
+      <Menu as="div" className="relative inline-block text-left">
+        <Menu.Button
+          className={`px-3 py-1 rounded-md text-sm flex items-center gap-1 ${
+            status === "pendente"
+              ? "bg-yellow-100 text-yellow-800"
+              : status === "confirmado"
+              ? "bg-purple-100 text-purple-800"
+              : "bg-green-100 text-green-800"
+          }`}
+        >
+          <selected.icon className="h-4 w-4" />
+          {selected.label}
+          <svg
+            className="w-3 h-3 ml-1"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414L10 13.414 5.293 8.707a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </Menu.Button>
+        <Menu.Items className="absolute z-50 mt-1 w-48 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+          {statusOptions.map((option) => (
+            <Menu.Item key={option.value}>
+              {({ active }) => (
+                <button
+                  onClick={() => updateStatus(option.value)}
+                  className={`${
+                    active ? "bg-gray-100" : ""
+                  } w-full px-4 py-2 text-sm flex items-center gap-2 text-left`}
+                >
+                 <span
+                  className={`flex font-medium ${
+                    option.value === "pendente"
+                      ? "text-[#854d0e]"
+                      : option.value === "confirmado"
+                      ? "text-[#6b21a8]"
+                      : option.value === "finalizado"
+                      ? "text-[#166534]"
+                      : "text-gray-600"
+
+                  }`}
+                  >
+                  <option.icon className="flex h-4 w-4" />
+                  {option.label}
+                  </span>
+                </button>
+              )}
+            </Menu.Item>
+          ))}
+        </Menu.Items>
+      </Menu>
+    );
+  }
+  
+
   return (
     <Layout>
       {/* Stats Cards Container */}
-      <div className="flex pb-3 items-start gap-4 self-stretch flex-wrap xl:flex-nowrap">
+      <div className="hidden md:flex pb-3 items-start gap-4 self-stretch flex-wrap xl:flex-nowrap m:hidden">
         <StatCard
           title="Festas Hoje"
           value={todaysParties.length.toString()}
@@ -213,26 +424,69 @@ export default function Index() {
         />
         <StatCard
           title="Festas no Mês"
-          value="0"
+          value={monthlyParties.length.toString()}
           icon={<PartyIcon />}
           borderColor="border-l-[#22d3ee]"
           trend={{
-            icon: <TrendUpIcon />,
-            value: "+0%",
+            icon: TrendIcon(festaVariation),
+            value: <span className={variationColor}>{formattedVariation}</span>,
             label: "mês Anterior",
           }}
         />
         <StatCard
           title="Renda Bruta Mensal"
-          value="R$ 0,00"
+          value={`R$ ${monthlyRevenue.toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+          })}`}
           icon={<MoneyIcon />}
           borderColor="border-l-[#facc15]"
           trend={{
-            icon: <TrendUpIcon />,
-            value: "+0%",
+            icon: TrendIcon(festaVariation),
+            value: <span className={variationColor}>{formattedVariation}</span>,
             label: "mês Anterior",
           }}
         />
+      </div>
+
+      <div className="w-full overflow-x-auto md:hidden">
+        <div className="flex gap-4 w-max">
+        <StatCard
+          title="Festas Hoje"
+          value={todaysParties.length.toString()}
+          icon={<PartyIcon />}
+          borderColor="border-l-[#00d17d]"
+        />
+        <StatCard
+          title="Renda Bruta Hoje"
+          value={`R$ ${todaysRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+          icon={<MoneyIcon />}
+          borderColor="border-l-[#fb923c]"
+        />
+        <StatCard
+          title="Festas no Mês"
+          value={monthlyParties.length.toString()}
+          icon={<PartyIcon />}
+          borderColor="border-l-[#22d3ee]"
+          trend={{
+            icon: TrendIcon(festaVariation),
+            value: <span className={variationColor}>{formattedVariation}</span>,
+            label: "mês Anterior",
+          }}
+        />
+        <StatCard
+          title="Renda Bruta Mensal"
+          value={`R$ ${monthlyRevenue.toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+          })}`}
+          icon={<MoneyIcon />}
+          borderColor="border-l-[#facc15]"
+          trend={{
+            icon: TrendIcon(festaVariation),
+            value: <span className={variationColor}>{formattedVariation}</span>,
+            label: "mês Anterior",
+          }}
+        />
+        </div>
       </div>
 
       {/* Upcoming Events Section */}
@@ -285,15 +539,15 @@ export default function Index() {
                   <div className="flex flex-col gap-2 flex-1">
                     <div className="flex w-fit h-7 py-0.5 justify-center items-center">
                       <div className="text-[#1f2937] font-exo text-lg font-semibold leading-7">
-                        {party.clientName}
+                        {party.cliente}
                       </div>
                     </div>
                     <div className="flex gap-2 items-center">
                       <div className="text-[#9333ea] font-exo text-sm font-medium leading-5">
-                        {party.time}
+                        {party.hora_festa}
                       </div>
                       <div className="text-[#6b7280] font-exo text-sm font-normal leading-5">
-                        {party.phone}
+                        {party.telefone}
                       </div>
                     </div>
                   </div>
@@ -301,16 +555,16 @@ export default function Index() {
                   {/* Right - Status Badge */}
                   <div
                     className={`flex items-center gap-2 px-3 py-2 rounded-full ${party.statusColor} h-9`}
-                    style={{
+                    /*style={{
                       width:
-                        party.status === "completed"
+                        party.status === "confirmado"
                           ? "124px"
-                          : party.status === "delivered"
+                          : party.status === "finalizado"
                             ? "118px"
                             : "120px",
-                    }}
+                    }}*/
                   >
-                    {party.status === "completed" && (
+                    {party.status === "confirmado" && (
                       <svg
                         width="17"
                         height="16"
@@ -328,7 +582,7 @@ export default function Index() {
                         />
                       </svg>
                     )}
-                    {party.status === "delivered" && (
+                    {party.status === "finalizado" && (
                       <svg
                         width="17"
                         height="16"
@@ -367,7 +621,7 @@ export default function Index() {
                         />
                       </svg>
                     )}
-                    {party.status === "pending" && (
+                    {party.status === "pendente" && (
                       <svg
                         width="17"
                         height="16"
@@ -392,8 +646,8 @@ export default function Index() {
                         />
                       </svg>
                     )}
-                    <div className="text-[#166534] font-exo text-xs font-medium leading-4 text-center">
-                      {party.statusText}
+                   <div className="text-center">
+                      {party.statusComponent}
                     </div>
                     <svg
                       width="17"
@@ -426,19 +680,23 @@ export default function Index() {
                         Valor Total
                       </div>
                       <div className="text-[#1f2937] font-exo text-base font-medium leading-6">
-                        {party.totalValue}
+                        {party.valor_total}
                       </div>
                     </div>
 
                     {/* Items */}
-                    <div className="flex flex-col justify-center w-[134px] h-[43px]">
+                    <div className="hidden md:flex flex flex-col justify-center h-[43px]">
                       <div className="text-[#a1a1aa] font-exo text-base font-normal leading-6">
-                        {party.items.map((item, itemIndex) => (
-                          <div key={itemIndex}>{item}</div>
-                        ))}
+                        <div className='grid grid-flow-col grid-rows-2 gap-x-4 gap-y-1'>
+                          {party.items.map((item, itemIndex) => (
+                            <div key={itemIndex} className="text-[#a1a1aa] font-exo text-base font-normal leading-6">
+                            {item}
+                            </div>
+                          ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
                   {/* Right - Action Buttons */}
                   <div className="flex gap-2">
