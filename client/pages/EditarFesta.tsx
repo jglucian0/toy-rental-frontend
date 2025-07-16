@@ -1,16 +1,17 @@
-import { useState, useEffect, useRef  } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Layout } from "@/components/Layout";
 import { useNavigate, useParams } from "react-router-dom";
 import { Calendar } from "lucide-react";
 import { LuUserRoundSearch } from "react-icons/lu";
 import { FaRegClock } from "react-icons/fa6";
 import { DatePickerField } from "@/components/DatePickerField";
-
+import { toast } from 'sonner';
+import { ExcluirFesta } from "@/components/ExcluirFesta";
 
 export default function EditarFesta() {
   const navigate = useNavigate();
   const [clientes, setClientes] = useState([]);
-  const {id} = useParams();
+  const { id } = useParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [brinquedosDisponiveis, setBrinquedosDisponiveis] = useState([]);
@@ -39,7 +40,7 @@ export default function EditarFesta() {
     descontos: 0,
     descricao: "",
     metodo_pagamento: "pix",
-    status: "pendente",
+    status: "Pendente",
     cep: "85260000",
     rua: "",
     numero: "S/N",
@@ -85,7 +86,7 @@ export default function EditarFesta() {
         alert("Erro ao carregar dados da festa. Verifique o console.");
       });
   }, [id]);
-  
+
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -98,14 +99,14 @@ export default function EditarFesta() {
           const data = await res.json();
 
           // Mescla os disponíveis com os brinquedos da própria festa (caso não estejam disponíveis)
-        const brinquedosDaFestaQueFaltam =
-        brinquedosOriginaisDaFesta.filter(
-          (b) => !data.some((d) => d.id === b.id)
-        );
+          const brinquedosDaFestaQueFaltam =
+            brinquedosOriginaisDaFesta.filter(
+              (b) => !data.some((d) => d.id === b.id)
+            );
 
-      const brinquedosCompletos = [...data, ...brinquedosDaFestaQueFaltam];
+          const brinquedosCompletos = [...data, ...brinquedosDaFestaQueFaltam];
 
-      setBrinquedosDisponiveis(brinquedosCompletos);
+          setBrinquedosDisponiveis(brinquedosCompletos);
         } catch (err) {
           console.error("Erro ao buscar brinquedos:", err);
         }
@@ -113,9 +114,9 @@ export default function EditarFesta() {
         setBrinquedosDisponiveis([]);
       }
     }
-  
+
     buscarBrinquedosDisponiveis();
-    }, [festa.data_festa, festa.data_retirada, brinquedosOriginaisDaFesta]);
+  }, [festa.data_festa, festa.data_retirada, brinquedosOriginaisDaFesta]);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -136,15 +137,15 @@ export default function EditarFesta() {
     }));
   }, [festa.valor_total]);
 
-  
+
   useEffect(() => {
-      const somaBrinquedos = brinquedosSelecionados.reduce((total, b) => total + Number(b.valor_unitario), 0);
-      const total = somaBrinquedos + Number(festa.acrescimos) - Number(festa.descontos);
-    
-      setFesta(prev => ({
-        ...prev,
-        valor_total: total,
-      }));
+    const somaBrinquedos = brinquedosSelecionados.reduce((total, b) => total + Number(b.valor_unitario), 0);
+    const total = somaBrinquedos + Number(festa.acrescimos) - Number(festa.descontos);
+
+    setFesta(prev => ({
+      ...prev,
+      valor_total: total,
+    }));
   }, [brinquedosSelecionados, festa.acrescimos, festa.descontos]);
 
   const handleSelectCliente = (cliente) => {
@@ -170,7 +171,7 @@ export default function EditarFesta() {
       }));
     }
 
-    setSearchTerm(""); 
+    setSearchTerm("");
     setDropdownOpen(false);
   };
 
@@ -191,24 +192,6 @@ export default function EditarFesta() {
     setDropdownOpen(false);
   };
 
-  const handleDelete = async () => {
-    if(!window.confirm("Tem certeza que deseja excluir esta festa?")) return;
-
-    try{
-      const res = await fetch(`http://localhost:8000/api/festas/${id}/`, {
-        method: 'DELETE',
-      });
-
-      if (res.ok) {
-        navigate("/festas");
-      } else {
-        alert("Erro ao excluir festa.");
-      }
-    } catch (err) {
-      alert("Erro de conexão ao excluir.");
-    }
-  };
-
   const handleChangeFesta = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFesta(prev => ({
@@ -219,12 +202,12 @@ export default function EditarFesta() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!festa.cliente_id || !festa.brinquedos_ids.length) {
       alert("Selecione um cliente e pelo menos um brinquedo.");
       return;
     }
-  
+
     try {
       const res = await fetch(`http://localhost:8000/api/festas/${id}/`, {
         method: "PUT",
@@ -233,9 +216,9 @@ export default function EditarFesta() {
         },
         body: JSON.stringify(festa),
       });
-  
+
       if (res.ok) {
-        /*alert("Festa cadastrada com sucesso!");*/
+        toast.success("Festa atualizada com sucesso!");
         navigate("/festas");
       } else {
         const error = await res.json();
@@ -271,460 +254,458 @@ export default function EditarFesta() {
     const statusNormalized = normalize(cliente.status);
     const telefoneCleaned = cleanNumber(cliente.telefone);
 
-  return (
-    nomeNormalized.includes(normalizedSearchTerm) ||
-    documentoNormalized.includes(normalizedSearchTerm) ||
-    (cleanedSearchTerm && telefoneCleaned.includes(cleanedSearchTerm)) || // começa com o termo
-    (normalizedSearchTerm && statusNormalized === normalizedSearchTerm)     // status exato
-  );
+    return (
+      nomeNormalized.includes(normalizedSearchTerm) ||
+      documentoNormalized.includes(normalizedSearchTerm) ||
+      (cleanedSearchTerm && telefoneCleaned.includes(cleanedSearchTerm)) || // começa com o termo
+      (normalizedSearchTerm && statusNormalized === normalizedSearchTerm)     // status exato
+    );
   });
-  
+
 
   return (
     <Layout>
       <div className="flex w-full flex-col lg:flex-row gap-6">
-          {/* Client Section */}
-          <div className="flex w-full p-6 flex-col items-start self-stretch rounded-lg bg-white shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.10),0px_2px_4px_-2px_rgba(0,0,0,0.10)]">
-            {/* Header */}
-            <div className="flex py-3 pb-[14px] items-center justify-between self-stretch border-b-2 border-[#e2e8f0] relative">
-              <div className="text-[#020817] font-exo text-2xl font-bold leading-8 flex pl-5 flex-col items-start border-l-4 border-[#00d17d]">
-                Adicionar Clientes
-              </div>
+        {/* Client Section */}
+        <div className="flex w-full p-6 flex-col items-start self-stretch rounded-lg bg-white shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.10),0px_2px_4px_-2px_rgba(0,0,0,0.10)]">
+          {/* Header */}
+          <div className="flex py-3 pb-[14px] items-center justify-between self-stretch border-b-2 border-[#e2e8f0] relative">
+            <div className="text-[#020817] font-exo text-2xl font-bold leading-8 flex pl-5 flex-col items-start border-l-4 border-[#00d17d]">
+              Editar Festa
             </div>
-  
-            <div className="flex flex-col items-start self-stretch gap-3 mt-6">
-              <div className="w-full overflow-x-auto">
-                <form onSubmit={handleSubmit} className="">
-                  {/* Dados pessoais */}
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-800 border-b pb-1 mb-4">Dados Pessoais</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                      {/* Client Search */}
-                      <div>
-                        <div className="relative">
-                          <input
-                            type="text"
-                            value={searchTerm}
-                            onChange={handleSearchChange}
-                            onFocus={() => setDropdownOpen(true)}
-                            className="border w-full border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400;"
-                            placeholder="Selecione um cliente..."
-                          />
-                          {dropdownOpen && (
-                            <ul className="absolute z-10 w-full max-h-60 overflow-auto bg-white border border-gray-300 rounded-md mt-1 shadow-lg">
-                              {filteredClientes.length === 0 ? (
-                                <li className="p-2 text-gray-500">Nenhum cliente encontrado</li>
-                              ) : (
-                                filteredClientes.map(cliente => (
-                                  <li
-                                    key={cliente.id}
-                                    onClick={() => handleSelectCliente(cliente)}
-                                    className="cursor-pointer p-2 hover:bg-blue-100"
-                                  >
-                                    {cliente.nome}
-                                  </li>
-                                ))
-                              )}
-                            </ul>
-                          )}
-                          <LuUserRoundSearch className="absolute right-3 top-2.5 h-5 w-5 text-gray-600" />
-                        </div>
-                      </div>
-                      {/* Nome */}
-                      <input
-                         type="text"
-                         name="nome"
-                         placeholder="Nome"
-                         value={festa.nome}
-                         onChange={(e) => {
-                          handleChangeFesta(e);
-                          setSearchTerm(e.target.value);
-                          }}
-                         className="input"
-                      />
-                      {/* Documento */}
-                      <input
-                        type="text"
-                        name="documento"
-                        placeholder="Documento (CPF/CNPJ)"
-                        value={festa.documento}
-                        onChange={handleChangeFesta}
-                        className="input"
-                      />
-                      {/* Telefone */}
-                      <input
-                        type="text"
-                        name="telefone"
-                        placeholder="Telefone"
-                        value={festa.telefone}
-                        onChange={handleChangeFesta}
-                        className="input"
-                      />
-                    </div>
-                  </div>
-                  {/* Dados da festa */}
-                  <div className="mt-10">
-                    <h3 className="text-lg font-bold text-gray-800 border-b pb-1 mb-4">Dados da Festa</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                        {/* Data */}
-                        <div>
-                          <label className="block text-base text-slate-400 mb-1">
-                            Data da festa
-                          </label>
-                          <DatePickerField
-                            selectedDate={festa.data_festa}
-                            onChange={(val) => setFesta({ ...festa, data_festa: val })}
-                          />
-                        </div>
-                        {/* Hora */}
-                        <div>
-                          <label className="block text-base text-slate-400 mb-1">
-                            Hora da festa
-                          </label>
-                          <div className="relative">
-                            <input
-                            type="time"
-                            name="hora_festa"
-                            value={festa.hora_festa} 
-                            onChange={handleChangeFesta}
-                            className="input flex h-11 w-full items-center px-3 py-2 rounded-md text-left"
-                            placeholder="HH:mm"
-                            />
-                            <FaRegClock className="absolute right-3 top-2.5 h-5 w-5 text-gray-600" />
-                          </div>
-                        </div>
-                        {/* Duração */}
-                        <div>
-                        <label className="block text-base text-slate-400 mb-1">
-                          Duração
-                        </label>
-                        <select
-                          name="duração"
-                          value={festa.duração}
-                          onChange={handleChangeFesta}
-                          className="input h-11 flex w-full items-center px-3 py-2 rounded-md text-left"
-                        >
-                          <option value="04:00:00">4h 0min</option>
-                          <option value="05:00:00">5h 0min</option>
-                          <option value="06:00:00">6h 0min</option>
-                          <option value="07:00:00">7h 0min</option>
-                          <option value="08:00:00">8h 0min</option>
-                        </select>
-                        </div>
-                        {/* Montagem */}
-                        <div>
-                          <label className="block text-base text-slate-400 mb-1">
-                            Montagem
-                          </label>
-                          <div className="relative">
-                            <input
-                            type="time"
-                            name="hora_montagem"
-                            value={festa.hora_montagem}
-                            onChange={handleChangeFesta}
-                            className="input flex w-full items-center px-3 py-2 rounded-md text-left"
-                            placeholder="HH:mm"
-                            />
-                            <FaRegClock className="absolute right-3 top-2.5 h-5 w-5 text-gray-600" />
-                          </div>
-                        </div>
-                        {/* Data recolher */}
-                        <div>
-                          <label className="block text-base text-slate-400 mb-1">
-                            Data para recolher
-                          </label>
-                          <DatePickerField
-                            selectedDate={festa.data_retirada}
-                            onChange={(val) => setFesta({ ...festa, data_retirada: val })}
-                          />
-                        </div>
-                        
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                      {/* Recolher */}
-                      <div>
-                          <label className="block text-base text-slate-400 mb-1">
-                            Recolher
-                          </label>
-                          <div className="relative">
-                            <input
-                            type="time"
-                            name="hora_retirada"
-                            value={festa.hora_retirada}
-                            onChange={handleChangeFesta}
-                            className="input flex h-11 w-full items-center px-3 py-2 rounded-md text-left text-gray-400"
-                            placeholder="HH:mm"
-                            />
-                            <FaRegClock className="absolute right-3 top-2.5 h-5 w-5 text-gray-600" />
-                      </div>
-                      </div>
-                      {/* Montador */}
-                      <div>
-                        <label className="block text-base text-slate-400 mb-1">
-                          Montador
-                        </label>
+          </div>
+
+          <div className="flex flex-col items-start self-stretch gap-3 mt-6">
+            <div className="w-full overflow-x-auto">
+              <form onSubmit={handleSubmit} className="">
+                {/* Dados pessoais */}
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800 border-b pb-1 mb-4">Dados Pessoais</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {/* Client Search */}
+                    <div>
+                      <div className="relative">
                         <input
                           type="text"
-                          name="montador"
-                          value={festa.montador}
-                          onChange={handleChangeFesta}
-                          className="input w-full h-11 px-3"
+                          value={searchTerm}
+                          onChange={handleSearchChange}
+                          onFocus={() => setDropdownOpen(true)}
+                          className="border w-full border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400;"
+                          placeholder="Selecione um cliente..."
                         />
-                      </div>
-                      {/* Valor de entrada */}
-                      <div>
-                        <label className="block text-base text-slate-400 mb-1">
-                          Valor de entrada
-                        </label>
-                        <input
-                          type="number"
-                          name="valor_entrada"
-                          value={festa.valor_entrada}
-                          onChange={handleChangeFesta}
-                          className="input w-full h-11"
-                        />
-                      </div>
-                      {/* Qtd Parcelas */}
-                      <div>
-                        <label className="block text-base text-slate-400 mb-1">
-                          Qtd Parcelas
-                        </label>
-                        <input
-                          type="number"
-                          name="qtd_parcelas"
-                          value={festa.qtd_parcelas}
-                          onChange={handleChangeFesta}
-                          className="input w-full h-11"
-                        />
+                        {dropdownOpen && (
+                          <ul className="absolute z-10 w-full max-h-60 overflow-auto bg-white border border-gray-300 rounded-md mt-1 shadow-lg">
+                            {filteredClientes.length === 0 ? (
+                              <li className="p-2 text-gray-500">Nenhum cliente encontrado</li>
+                            ) : (
+                              filteredClientes.map(cliente => (
+                                <li
+                                  key={cliente.id}
+                                  onClick={() => handleSelectCliente(cliente)}
+                                  className="cursor-pointer p-2 hover:bg-blue-100"
+                                >
+                                  {cliente.nome}
+                                </li>
+                              ))
+                            )}
+                          </ul>
+                        )}
+                        <LuUserRoundSearch className="absolute right-3 top-2.5 h-5 w-5 text-gray-600" />
                       </div>
                     </div>
+                    {/* Nome */}
+                    <input
+                      type="text"
+                      name="nome"
+                      placeholder="Nome"
+                      value={festa.nome}
+                      onChange={(e) => {
+                        handleChangeFesta(e);
+                        setSearchTerm(e.target.value);
+                      }}
+                      className="input"
+                    />
+                    {/* Documento */}
+                    <input
+                      type="text"
+                      name="documento"
+                      placeholder="Documento (CPF/CNPJ)"
+                      value={festa.documento}
+                      onChange={handleChangeFesta}
+                      className="input"
+                    />
+                    {/* Telefone */}
+                    <input
+                      type="text"
+                      name="telefone"
+                      placeholder="Telefone"
+                      value={festa.telefone}
+                      onChange={handleChangeFesta}
+                      className="input"
+                    />
                   </div>
-                  <div className="mt-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Status */}
-                      <div>
-                        <label className="block text-base text-slate-400 mb-1">
-                          Status
-                        </label>
-                        <select 
-                          name="status"
-                          value={festa.status}
-                          onChange={handleChangeFesta}
-                          className="input w-full h-11">
-                            <option value="Pendente">Pendente</option>
-                            <option value="Confirmado">Confirmado</option>
-                            <option value="Finalizado">Finalizado</option>
-                        </select>
-                      </div>
-                      {/* Método de Pag */}
-                      <div>
-                        <label className="block text-base text-slate-400 mb-1">
-                          Método de Pagamento
-                        </label>
-                        <select
-                          name="metodo_pagamento"
-                          value={festa.metodo_pagamento}
-                          onChange={handleChangeFesta}
-                          className="input w-full h-11"
-                        >
-                          <option value="Dinheiro">Dinheiro</option>
-                          <option value="Cartão">Cartão</option>
-                          <option value="Pix">Pix</option>
-                        </select>
-                      </div>
-                  </div>
-                  </div>
-                  <div className="mt-4 mb-10">
+                </div>
+                {/* Dados da festa */}
+                <div className="mt-10">
+                  <h3 className="text-lg font-bold text-gray-800 border-b pb-1 mb-4">Dados da Festa</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    {/* Data */}
+                    <div>
                       <label className="block text-base text-slate-400 mb-1">
-                        Descrição:
+                        Data da festa
                       </label>
-                      <textarea
-                        rows={3}
-                        name="descricao"
-                        value={festa.descricao}
-                        onChange={handleChangeFesta}
-                        className="input w-full p-3"
+                      <DatePickerField
+                        selectedDate={festa.data_festa}
+                        onChange={(val) => setFesta({ ...festa, data_festa: val })}
                       />
+                    </div>
+                    {/* Hora */}
+                    <div>
+                      <label className="block text-base text-slate-400 mb-1">
+                        Hora da festa
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="time"
+                          name="hora_festa"
+                          value={festa.hora_festa}
+                          onChange={handleChangeFesta}
+                          className="input flex h-11 w-full items-center px-3 py-2 rounded-md text-left"
+                          placeholder="HH:mm"
+                        />
+                        <FaRegClock className="absolute right-3 top-2.5 h-5 w-5 text-gray-600" />
+                      </div>
+                    </div>
+                    {/* Duração */}
+                    <div>
+                      <label className="block text-base text-slate-400 mb-1">
+                        Duração
+                      </label>
+                      <select
+                        name="duração"
+                        value={festa.duração}
+                        onChange={handleChangeFesta}
+                        className="input h-11 flex w-full items-center px-3 py-2 rounded-md text-left"
+                      >
+                        <option value="04:00:00">4h 0min</option>
+                        <option value="05:00:00">5h 0min</option>
+                        <option value="06:00:00">6h 0min</option>
+                        <option value="07:00:00">7h 0min</option>
+                        <option value="08:00:00">8h 0min</option>
+                      </select>
+                    </div>
+                    {/* Montagem */}
+                    <div>
+                      <label className="block text-base text-slate-400 mb-1">
+                        Montagem
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="time"
+                          name="hora_montagem"
+                          value={festa.hora_montagem}
+                          onChange={handleChangeFesta}
+                          className="input flex w-full items-center px-3 py-2 rounded-md text-left"
+                          placeholder="HH:mm"
+                        />
+                        <FaRegClock className="absolute right-3 top-2.5 h-5 w-5 text-gray-600" />
+                      </div>
+                    </div>
+                    {/* Data recolher */}
+                    <div>
+                      <label className="block text-base text-slate-400 mb-1">
+                        Data para recolher
+                      </label>
+                      <DatePickerField
+                        selectedDate={festa.data_retirada}
+                        onChange={(val) => setFesta({ ...festa, data_retirada: val })}
+                      />
+                    </div>
+
                   </div>
-                  {/* Endereço */}
-                  <div className="mt-4">
-                    <h3 className="text-lg font-bold text-gray-800 border-b pb-1 mb-4">Endereço</h3>
-                    <div className="mt-6">
-                      <div className="flex items-center gap-3 mb-6">
-                        <span className="text-lg text-slate-900">
-                          Usar endereço do cliente?
-                        </span>
-                        <div className="w-12 h-6 bg-gray-300 rounded-full relative cursor-pointer">
-                          <div
-                              onClick={() => {
-                                setUsarEnderecoCliente((prev) => {
-                                  const novoValor = !prev;
-                                
-                                  // Se o cliente já foi selecionado e o switch foi ativado, copia o endereço
-                                  if (novoValor && typeof festa.cliente_id === "number") {
-                                    const clienteSelecionado = clientes.find(c => c.id === festa.cliente_id);
-                                    if (clienteSelecionado) {
-                                      setFesta(prev => ({
-                                        ...prev,
-                                        cep: clienteSelecionado.cep || "85260000",
-                                        rua: clienteSelecionado.rua || "",
-                                        numero: clienteSelecionado.numero || "S/N",
-                                        bairro: clienteSelecionado.bairro || "",
-                                        cidade: clienteSelecionado.cidade || "Manoel Ribas",
-                                        uf: clienteSelecionado.uf || "PR",
-                                        pais: clienteSelecionado.pais || "Brasil",
-                                        complemento: clienteSelecionado.complemento || "",
-                                      }));
-                                    }
-                                  }
-                                
-                                  return novoValor;
-                                });
-                              }}
-                              className={`w-12 h-6 rounded-full cursor-pointer relative transition-colors ${
-                                usarEnderecoCliente ? "bg-green-500" : "bg-gray-300"
-                              }`}
-                            >
-                              <div
-                                className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${
-                                  usarEnderecoCliente ? "translate-x-6" : "translate-x-1"
-                                }`}
-                              />
-                          </div>
-                        </div>
+                </div>
+                <div className="mt-4">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {/* Recolher */}
+                    <div>
+                      <label className="block text-base text-slate-400 mb-1">
+                        Recolher
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="time"
+                          name="hora_retirada"
+                          value={festa.hora_retirada}
+                          onChange={handleChangeFesta}
+                          className="input flex h-11 w-full items-center px-3 py-2 rounded-md text-left"
+                          placeholder="HH:mm"
+                        />
+                        <FaRegClock className="absolute right-3 top-2.5 h-5 w-5 text-gray-600" />
                       </div>
-                      
-                      {!usarEnderecoCliente && (
-                      <div>
-                      {/* CEP */}
-                      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-                        <div className="md:col-span-1">
-                          <label className="block text-base text-slate-400 mb-1">
-                            CEP
-                          </label>
-                          <input
-                            type="text"
-                            name="cep"
-                            value={festa.cep}
-                            onChange={handleChangeFesta}
-                            className="w-full h-9 px-3 text-sm border border-gray-300 rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                        </div>
-
-                        {/* Rua */}
-                        <div className="md:col-span-2">
-                          <label className="block text-base text-slate-400 mb-1">
-                            Rua
-                          </label>
-                          <input
-                            type="text"
-                            name="rua"
-                            value={festa.rua}
-                            onChange={handleChangeFesta}
-                            className="w-full h-9 px-3 text-sm border border-gray-300 rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                        </div>
-
-                        {/* Número */}
-                        <div className="md:col-span-1">
-                          <label className="block text-base text-slate-400 mb-1">
-                            Número
-                          </label>
-                          <input
-                            type="text"
-                            name="numero"
-                            value={festa.numero}
-                            onChange={handleChangeFesta}
-                            className="w-full h-9 px-3 text-sm border border-gray-300 rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                        </div>
-
-                        {/* Bairro */}
-                        <div className="md:col-span-2">
-                          <label className="block text-base text-slate-400 mb-1">
-                            Bairro
-                          </label>
-                          <input
-                            type="text"
-                            name="bairro"
-                            value={festa.bairro}
-                            onChange={handleChangeFesta}
-                            className="w-full h-9 px-3 text-sm border border-gray-300 rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                        </div>
-
-                      </div>
-
-                      {/* Cidade */}
-                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-4">
-                        <div className="md:col-span-1">
-                          <label className="block text-base text-slate-400 mb-1">
-                            Cidade
-                          </label>
-                          <input
-                            type="text"
-                            name="cidade"
-                            value={festa.cidade}
-                            onChange={handleChangeFesta}
-                            className="w-full h-9 px-3 text-sm border border-gray-300 rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                        </div>
-
-                        {/* UF */}
-                        <div className="md:col-span-1">
-                          <label className="block text-base text-slate-400 mb-1">
-                            UF
-                          </label>
-                          <input
-                            type="text"
-                            name="uf"
-                            value={festa.uf}
-                            onChange={handleChangeFesta}
-                            className="w-full h-9 px-3 text-sm border border-gray-300 rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                        </div>
-
-                        {/* País */}
-                        <div className="md:col-span-1">
-                          <label className="block text-base text-slate-400 mb-1">
-                            País
-                          </label>
-                          <input
-                            type="text"
-                            value={festa.pais}
-                            onChange={handleChangeFesta}
-                            className="w-full h-9 px-3 text-sm text-slate-900 border border-gray-300 rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            
-                          />
-                        </div>
-
-                        {/* Complemento */}
-                        <div className="md:col-span-2 mb-10">
-                          <div>
-                          <label className="block text-base text-slate-400 mb-1">
-                            Complemento
-                          </label>
-                          <input
-                            type="text"
-                            name="complemento"
-                            value={festa.complemento}
-                            onChange={handleChangeFesta}
-                            className="w-full h-9 px-3 text-sm border border-gray-300 rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                          </div>
-                        </div>
-                      </div>
-                      </div>
-                      )}
-
+                    </div>
+                    {/* Montador */}
+                    <div>
+                      <label className="block text-base text-slate-400 mb-1">
+                        Montador
+                      </label>
+                      <input
+                        type="text"
+                        name="montador"
+                        value={festa.montador}
+                        onChange={handleChangeFesta}
+                        className="input w-full h-11 px-3"
+                      />
+                    </div>
+                    {/* Valor de entrada */}
+                    <div>
+                      <label className="block text-base text-slate-400 mb-1">
+                        Valor de entrada
+                      </label>
+                      <input
+                        type="number"
+                        name="valor_entrada"
+                        value={festa.valor_entrada}
+                        onChange={handleChangeFesta}
+                        className="input w-full h-11"
+                      />
+                    </div>
+                    {/* Qtd Parcelas */}
+                    <div>
+                      <label className="block text-base text-slate-400 mb-1">
+                        Qtd Parcelas
+                      </label>
+                      <input
+                        type="number"
+                        name="qtd_parcelas"
+                        value={festa.qtd_parcelas}
+                        onChange={handleChangeFesta}
+                        className="input w-full h-11"
+                      />
                     </div>
                   </div>
-                  {/* Brinquedos */}
-                  <div className="mt-4 mb-10">
-                    <h3 className="text-lg font-bold text-gray-800 border-b pb-1 mb-4">Brinquedos</h3>
-                    <div className="mt-6">
+                </div>
+                <div className="mt-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Status */}
+                    <div>
+                      <label className="block text-base text-slate-400 mb-1">
+                        Status
+                      </label>
+                      <select
+                        name="status"
+                        value={festa.status}
+                        onChange={handleChangeFesta}
+                        className="input w-full h-11">
+                        <option value="pendente">Pendente</option>
+                        <option value="confirmado">Confirmado</option>
+                        <option value="finalizado">Finalizado</option>
+                      </select>
+                    </div>
+                    {/* Método de Pag */}
+                    <div>
+                      <label className="block text-base text-slate-400 mb-1">
+                        Método de Pagamento
+                      </label>
+                      <select
+                        name="metodo_pagamento"
+                        value={festa.metodo_pagamento}
+                        onChange={handleChangeFesta}
+                        className="input w-full h-11"
+                      >
+                        <option value="Dinheiro">Dinheiro</option>
+                        <option value="Cartão">Cartão</option>
+                        <option value="Pix">Pix</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 mb-10">
+                  <label className="block text-base text-slate-400 mb-1">
+                    Descrição:
+                  </label>
+                  <textarea
+                    rows={3}
+                    name="descricao"
+                    value={festa.descricao}
+                    onChange={handleChangeFesta}
+                    className="input w-full p-3"
+                  />
+                </div>
+                {/* Endereço */}
+                <div className="mt-4">
+                  <h3 className="text-lg font-bold text-gray-800 border-b pb-1 mb-4">Endereço</h3>
+                  <div className="mt-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <span className="text-lg text-slate-900">
+                        Usar endereço do cliente?
+                      </span>
+                      <div className="w-12 h-6 bg-gray-300 rounded-full relative cursor-pointer">
+                        <div
+                          onClick={() => {
+                            setUsarEnderecoCliente((prev) => {
+                              const novoValor = !prev;
+
+                              // Se o cliente já foi selecionado e o switch foi ativado, copia o endereço
+                              if (novoValor && typeof festa.cliente_id === "number") {
+                                const clienteSelecionado = clientes.find(c => c.id === festa.cliente_id);
+                                if (clienteSelecionado) {
+                                  setFesta(prev => ({
+                                    ...prev,
+                                    cep: clienteSelecionado.cep || "85260000",
+                                    rua: clienteSelecionado.rua || "",
+                                    numero: clienteSelecionado.numero || "S/N",
+                                    bairro: clienteSelecionado.bairro || "",
+                                    cidade: clienteSelecionado.cidade || "Manoel Ribas",
+                                    uf: clienteSelecionado.uf || "PR",
+                                    pais: clienteSelecionado.pais || "Brasil",
+                                    complemento: clienteSelecionado.complemento || "",
+                                  }));
+                                }
+                              }
+
+                              return novoValor;
+                            });
+                          }}
+                          className={`w-12 h-6 rounded-full cursor-pointer relative transition-colors ${usarEnderecoCliente ? "bg-green-500" : "bg-gray-300"
+                            }`}
+                        >
+                          <div
+                            className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${usarEnderecoCliente ? "translate-x-6" : "translate-x-1"
+                              }`}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {!usarEnderecoCliente && (
+                      <div>
+                        {/* CEP */}
+                        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                          <div className="md:col-span-1">
+                            <label className="block text-base text-slate-400 mb-1">
+                              CEP
+                            </label>
+                            <input
+                              type="text"
+                              name="cep"
+                              value={festa.cep}
+                              onChange={handleChangeFesta}
+                              className="w-full h-9 px-3 text-sm border border-gray-300 rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
+
+                          {/* Rua */}
+                          <div className="md:col-span-2">
+                            <label className="block text-base text-slate-400 mb-1">
+                              Rua
+                            </label>
+                            <input
+                              type="text"
+                              name="rua"
+                              value={festa.rua}
+                              onChange={handleChangeFesta}
+                              className="w-full h-9 px-3 text-sm border border-gray-300 rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
+
+                          {/* Número */}
+                          <div className="md:col-span-1">
+                            <label className="block text-base text-slate-400 mb-1">
+                              Número
+                            </label>
+                            <input
+                              type="text"
+                              name="numero"
+                              value={festa.numero}
+                              onChange={handleChangeFesta}
+                              className="w-full h-9 px-3 text-sm border border-gray-300 rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
+
+                          {/* Bairro */}
+                          <div className="md:col-span-2">
+                            <label className="block text-base text-slate-400 mb-1">
+                              Bairro
+                            </label>
+                            <input
+                              type="text"
+                              name="bairro"
+                              value={festa.bairro}
+                              onChange={handleChangeFesta}
+                              className="w-full h-9 px-3 text-sm border border-gray-300 rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
+
+                        </div>
+
+                        {/* Cidade */}
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-4">
+                          <div className="md:col-span-1">
+                            <label className="block text-base text-slate-400 mb-1">
+                              Cidade
+                            </label>
+                            <input
+                              type="text"
+                              name="cidade"
+                              value={festa.cidade}
+                              onChange={handleChangeFesta}
+                              className="w-full h-9 px-3 text-sm border border-gray-300 rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
+
+                          {/* UF */}
+                          <div className="md:col-span-1">
+                            <label className="block text-base text-slate-400 mb-1">
+                              UF
+                            </label>
+                            <input
+                              type="text"
+                              name="uf"
+                              value={festa.uf}
+                              onChange={handleChangeFesta}
+                              className="w-full h-9 px-3 text-sm border border-gray-300 rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                          </div>
+
+                          {/* País */}
+                          <div className="md:col-span-1">
+                            <label className="block text-base text-slate-400 mb-1">
+                              País
+                            </label>
+                            <input
+                              type="text"
+                              value={festa.pais}
+                              onChange={handleChangeFesta}
+                              className="w-full h-9 px-3 text-sm text-slate-900 border border-gray-300 rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+
+                            />
+                          </div>
+
+                          {/* Complemento */}
+                          <div className="md:col-span-2 mb-10">
+                            <div>
+                              <label className="block text-base text-slate-400 mb-1">
+                                Complemento
+                              </label>
+                              <input
+                                type="text"
+                                name="complemento"
+                                value={festa.complemento}
+                                onChange={handleChangeFesta}
+                                className="w-full h-9 px-3 text-sm border border-gray-300 rounded-md bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                  </div>
+                </div>
+                {/* Brinquedos */}
+                <div className="mt-4 mb-10">
+                  <h3 className="text-lg font-bold text-gray-800 border-b pb-1 mb-4">Brinquedos</h3>
+                  <div className="mt-6">
                     {brinquedosDisponiveis.length === 0 ? (
                       <p className="text-lg text-red-500">
                         Sem brinquedos disponíveis na data informada!
@@ -760,143 +741,135 @@ export default function EditarFesta() {
                         ))}
                       </div>
                     )}
-                    </div>
                   </div>
-                  {/* Botões */}
-                  <div className="mt-4 mb-10">
-                    {/* BOTÕES */}
-                    <div className="flex justify-between">
-                      <button
-                        type="button"
-                        onClick={() => navigate("/festas")}
-                        className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded shadow"
-                      >
-                        Cancelar
-                      </button>
+                </div>
+                {/* Botões */}
+                <div className="mt-4 mb-10">
+                  {/* BOTÕES */}
+                  <div className="flex justify-between">
+                    <button
+                      type="button"
+                      onClick={() => navigate("/festas")}
+                      className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded shadow"
+                    >
+                      Cancelar
+                    </button>
 
-                      <div className="flex flex-col md:flex-row gap-3 md:gap-5">
-                      <button
-                          type="button"
-                          onClick={handleDelete}
-                          className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded shadow w-full md:w-auto"
-                        >
-                          Excluir
-                      </button>
-
+                    <div className="flex flex-col md:flex-row gap-3 md:gap-5">
                       <button
                         type="submit"
                         className="bg-[#0B0F1C] hover:bg-gray-900 text-white px-6 py-2 rounded shadow"
                       >
                         Salvar alterações
                       </button>
-                      </div>
                     </div>
                   </div>
-                </form>
-              </div>
+                </div>
+              </form>
             </div>
           </div>
-          
-          {/* Sidebar - Desktop */}
-          <div className="hidden lg:block w-full max-w-[300px] lg:sticky top-0 self-start h-fit">
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <div className="border-b border-blue-200 pb-3 mb-6">
-                <h3 className="text-lg font-bold text-slate-900">
-                  Valor da Festa
-                </h3>
-              </div>
+        </div>
 
-              <div className="space-y-4">
-                {/* Acréscimos */}
-                <div>
-                  <label className="block text-base text-slate-400 mb-1">
-                    Acréscimos
-                  </label>
-                  <input
-                    type="number"
-                    name="acrescimos"
-                    value={Number(festa.acrescimos)}
-                    onChange={handleChangeFesta}
-                    className="input w-full h-11"
-                  />
-                </div>
-
-                {/* Descontos */}
-                <div>
-                  <label className="block text-base text-slate-400 mb-1">
-                    Descontos
-                  </label>
-                  <input
-                    type="number"
-                    name="descontos"
-                    value={Number(festa.descontos)}
-                    onChange={handleChangeFesta}
-                    className="input w-full h-11"
-                  />
-                </div>
-
-                {/* Total */}
-                <div className="border-t border-gray-300 pt-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-base font-bold text-slate-900">
-                      Total:
-                    </span>
-                    <span className="text-base font-bold text-slate-900">
-                      R$ {Number(festa.valor_total).toFixed(2).replace(".", ",")}
-                    </span>
-                  </div>
-                </div>
-              </div>
+        {/* Sidebar - Desktop */}
+        <div className="hidden lg:block w-full max-w-[300px] lg:sticky top-0 self-start h-fit">
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="border-b border-blue-200 pb-3 mb-6">
+              <h3 className="text-lg font-bold text-slate-900">
+                Valor da Festa
+              </h3>
             </div>
-          </div>
-          {/* Sidebar - Mobile */}
-          <div className="block lg:hidden w-full">
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <div className="border-b border-blue-200 pb-3 mb-6">
-                <h3 className="text-lg font-bold text-slate-900">
-                  Valor da Festa
-                </h3>
+
+            <div className="space-y-4">
+              {/* Acréscimos */}
+              <div>
+                <label className="block text-base text-slate-400 mb-1">
+                  Acréscimos
+                </label>
+                <input
+                  type="number"
+                  name="acrescimos"
+                  value={Number(festa.acrescimos)}
+                  onChange={handleChangeFesta}
+                  className="input w-full h-11"
+                />
               </div>
 
-              <div className="space-y-4">
-                {/* Acréscimos */}
-                <div>
-                  <label className="block text-base text-slate-400 mb-1">
-                    Acréscimos
-                  </label>
-                  <input
-                    type="text"
-                    className="input w-full h-11"
-                    defaultValue="R$ 0,00"
-                  />
-                </div>
+              {/* Descontos */}
+              <div>
+                <label className="block text-base text-slate-400 mb-1">
+                  Descontos
+                </label>
+                <input
+                  type="number"
+                  name="descontos"
+                  value={Number(festa.descontos)}
+                  onChange={handleChangeFesta}
+                  className="input w-full h-11"
+                />
+              </div>
 
-                {/* Descontos */}
-                <div>
-                  <label className="block text-base text-slate-400 mb-1">
-                    Descontos
-                  </label>
-                  <input
-                    type="text"
-                    className="input w-full h-11"
-                    defaultValue="R$ 0,00"
-                  />
-                </div>
-
-                {/* Total */}
-                <div className="border-t border-gray-300 pt-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-base font-bold text-slate-900">
-                      Total:
-                    </span>
-                    <span className="text-base font-bold text-slate-900">
-                      R$ 0,00
-                    </span>
-                  </div>
+              {/* Total */}
+              <div className="border-t border-gray-300 pt-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-base font-bold text-slate-900">
+                    Total:
+                  </span>
+                  <span className="text-base font-bold text-slate-900">
+                    R$ {Number(festa.valor_total).toFixed(2).replace(".", ",")}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+        {/* Sidebar - Mobile */}
+        <div className="block lg:hidden w-full">
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="border-b border-blue-200 pb-3 mb-6">
+              <h3 className="text-lg font-bold text-slate-900">
+                Valor da Festa
+              </h3>
+            </div>
+
+            <div className="space-y-4">
+              {/* Acréscimos */}
+              <div>
+                <label className="block text-base text-slate-400 mb-1">
+                  Acréscimos
+                </label>
+                <input
+                  type="text"
+                  className="input w-full h-11"
+                  defaultValue="R$ 0,00"
+                />
+              </div>
+
+              {/* Descontos */}
+              <div>
+                <label className="block text-base text-slate-400 mb-1">
+                  Descontos
+                </label>
+                <input
+                  type="text"
+                  className="input w-full h-11"
+                  defaultValue="R$ 0,00"
+                />
+              </div>
+
+              {/* Total */}
+              <div className="border-t border-gray-300 pt-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-base font-bold text-slate-900">
+                    Total:
+                  </span>
+                  <span className="text-base font-bold text-slate-900">
+                    R$ 0,00
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </Layout>
   );

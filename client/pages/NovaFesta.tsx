@@ -6,6 +6,7 @@ import { LuUserRoundSearch } from "react-icons/lu";
 import { FaRegClock } from "react-icons/fa6";
 import { useSearchParams } from "react-router-dom";
 import { DatePickerField } from "@/components/DatePickerField";
+import { toast } from 'sonner';
 
 export default function FormCliente() {
   const navigate = useNavigate();
@@ -180,8 +181,17 @@ export default function FormCliente() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!festa.cliente_id || !festa.brinquedos_ids.length) {
-      alert("Selecione um cliente e pelo menos um brinquedo.");
+    if (!festa.cliente_id) {
+      toast.error("Dados do cliente não cadastrado!", {
+        id: "alert",
+      });
+      return;
+    }
+
+    if (!festa.brinquedos_ids.length) {
+      toast.error("Selecione pelo menos um brinquedo!", {
+        id: "alert",
+      });
       return;
     }
   
@@ -195,12 +205,13 @@ export default function FormCliente() {
       });
   
       if (res.ok) {
-        /*alert("Festa cadastrada com sucesso!");*/
+        toast.success("Festa cadastrada com sucesso!");
         navigate("/festas");
       } else {
-        const error = await res.json();
-        console.error("Erro na resposta da API:", error);
-        alert("Erro ao cadastrar a festa:\n" + JSON.stringify(error, null, 2));
+        toast.error("Existem campos obrigatórios em branco!", {
+          id: "alert",
+        });
+        return;
       }
     } catch (err) {
       console.error("Erro de conexão:", err);
@@ -211,8 +222,8 @@ export default function FormCliente() {
   // Função para remover acentos
   const normalize = (text: string) => {
     return text
-      .normalize("NFD") // separa acentos de letras
-      .replace(/[\u0300-\u036f]/g, "") // remove acentos
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
       .replace(/[.,-/\s]/g, "")
       .toLowerCase();
   };
@@ -247,7 +258,7 @@ export default function FormCliente() {
             {/* Header */}
             <div className="flex py-3 pb-[14px] items-center justify-between self-stretch border-b-2 border-[#e2e8f0] relative">
               <div className="text-[#020817] font-exo text-2xl font-bold leading-8 flex pl-5 flex-col items-start border-l-4 border-[#00d17d]">
-                Adicionar Clientes
+                Adicionar Festa
               </div>
             </div>
   

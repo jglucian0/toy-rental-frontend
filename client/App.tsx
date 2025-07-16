@@ -1,6 +1,6 @@
 import "./global.css";
 
-import { Toaster } from "@/components/ui/toaster";
+//import { Toaster } from "@/components/ui/toaster";
 import { createRoot } from "react-dom/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,14 +15,12 @@ import Festas from "./pages/Festas";
 import NovaFesta from "./pages/NovaFesta"
 import EditarFesta from "./pages/EditarFesta";
 
-
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
+      <Sonner position="top-center" richColors />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />

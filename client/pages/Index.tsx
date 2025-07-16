@@ -3,13 +3,10 @@ import { StatCard } from "@/components/StatCard";
 import { Calendar } from "@/components/ui/calendar";
 import { useState, useEffect, useRef } from "react";
 import { Menu } from "@headlessui/react";
-import {
-  CheckCircleIcon,
-  ClockIcon,
-  CalendarIcon,
-} from "@heroicons/react/20/solid";
+
 
 export default function Index() {
+
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date();
     const year = today.getFullYear();
@@ -19,7 +16,6 @@ export default function Index() {
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const datePickerRef = useRef<HTMLDivElement>(null);
-  
 
   // Close date picker when clicking outside
   useEffect(() => {
@@ -40,82 +36,78 @@ export default function Index() {
 
   // Sample party data
   const [locacoes, setLocacoes] = useState([]);
+  const [partyStatuses, setPartyStatuses] = useState({});
 
   useEffect(() => {
     const fetchLocacoes = async () => {
       try {
-      const response = await fetch("http://localhost:8000/api/locacoes-hoje/");
-      const data = await response.json();
-      setLocacoes(data);
+        const response = await fetch("http://localhost:8000/api/locacoes-hoje/");
+        const data = await response.json();
+        setLocacoes(data);
+
+        // Aqui atualiza partyStatuses:
+        const statuses = data.reduce((acc, loc) => {
+          acc[loc.id] = loc.status;
+          return acc;
+        }, {});
+        setPartyStatuses(statuses);
       } catch (error) {
         console.error("Erro ao buscar locações:", error);
       }
     };
-
-  fetchLocacoes();
+    fetchLocacoes();
   }, []);
 
-const formatTelefone = (tel: string) => {
-  if (tel.length === 11) {
-    return `(${tel.slice(0, 2)}) ${tel.slice(2, 7)}-${tel.slice(7)}`;
-  }
-  return tel;
-};
-
-const mapApiToParty = (locacao: any) => {
-  const statusMap: Record<string, { text: string; color: string }> = {
-    pendente: {
-      text: "Pendente",
-      color: "bg-[#fef9c3] text-[#854d0e]",
-    },
-    confirmado: {
-      text: "Confirmado",
-      color: "bg-[#f3e8ff] text-[#6b21a8]",
-    },
-    finalizado: {
-      text: "Finalizado",
-      color: "bg-[#dcfce7] text-[#166534]",
-    },
-
-  
+  const formatTelefone = (tel: string) => {
+    if (tel.length === 11) {
+      return `(${tel.slice(0, 2)}) ${tel.slice(2, 7)}-${tel.slice(7)}`;
+    }
+    return tel;
   };
-  
 
-  const rawStatus = String(locacao.status).toLowerCase().trim();
-  const statusInfo = statusMap[rawStatus] || statusMap["pendente"];
+  const mapApiToParty = (locacao: any) => {
+    const statusMap: Record<string, { text: string; color: string }> = {
+      pendente: {
+        text: "Pendente",
+        color: "bg-[#fef9c3] text-[#854d0e]",
+      },
+      confirmado: {
+        text: "Confirmado",
+        color: "bg-[#f3e8ff] text-[#166534]",
+      },
+      finalizado: {
+        text: "Finalizado",
+        color: "bg-[#dcfce7] text-[#6b21a8]",
+      },
 
-  return {
-    id: locacao.id,
-    cliente: locacao.cliente.nome,
-    telefone: formatTelefone(locacao.cliente.telefone),
-    hora_festa: locacao.hora_festa.slice(0, 5),
-    data_festa: locacao.data_festa,
-    status: rawStatus,
-    statusText: statusInfo.text,
-    statusColor: statusInfo.color,
-    valor_total: `R$ ${parseFloat(locacao.valor_total).toFixed(2).replace(".", ",")}`,
-    items: locacao.brinquedos.map((b: any) => `${b.nome} (1)`),
 
-    statusComponent: (
-      <StatusCell
-        currentStatus={locacao.status}
-        festaId={locacao.id}
-        onUpdate={(newStatus) => {
-          // atualiza a lista de festas localmente (opcional)
-          setLocacoes((prev) =>
-            prev.map((f) =>
-              f.id === locacao.id ? { ...f, status: newStatus } : f
-            )
-          );
-        }}
-      />
-    )
+    };
+
+
+    const rawStatus = String(locacao.status).toLowerCase().trim();
+    const statusInfo = statusMap[rawStatus] || statusMap["pendente"];
+
+    return {
+      id: locacao.id,
+      cliente: locacao.cliente.nome,
+      telefone: formatTelefone(locacao.cliente.telefone),
+      hora_festa: locacao.hora_festa.slice(0, 5),
+      data_festa: locacao.data_festa,
+      status: rawStatus,
+      statusText: statusInfo.text,
+      statusColor: statusInfo.color,
+      valor_total: `R$ ${parseFloat(locacao.valor_total).toFixed(2).replace(".", ",")}`,
+      items: locacao.brinquedos.map((b: any) => `${b.nome} (1)`),
+    };
   };
-};
 
 
 
-const mappedParties = locacoes.map(mapApiToParty);
+  const mappedParties = locacoes.map(locacao => {
+    // Usa o status do state atualizado se existir:
+    const updatedStatus = partyStatuses[locacao.id] || locacao.status;
+    return mapApiToParty({ ...locacao, status: updatedStatus });
+  });
 
   // Filter parties by selected date
   const filteredParties = mappedParties.filter(
@@ -140,23 +132,23 @@ const mappedParties = locacoes.map(mapApiToParty);
   );
 
   // Obter ano e mês atual
-const currentYear = new Date().getFullYear();
-const currentMonth = new Date().getMonth() + 1; // Janeiro = 0, então somamos 1
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth() + 1; // Janeiro = 0, então somamos 1
 
-// Filtrar festas do mês
-const monthlyParties = mappedParties.filter((party) => {
-  const [year, month] = party.data_festa.split("-").map(Number);
-  return year === currentYear && month === currentMonth;
-});
+  // Filtrar festas do mês
+  const monthlyParties = mappedParties.filter((party) => {
+    const [year, month] = party.data_festa.split("-").map(Number);
+    return year === currentYear && month === currentMonth;
+  });
 
-const monthlyRevenue = monthlyParties.reduce(
-  (sum, party) =>
-    sum + parseFloat(party.valor_total.replace("R$ ", "").replace(",", ".")),
-  0
-);
+  const monthlyRevenue = monthlyParties.reduce(
+    (sum, party) =>
+      sum + parseFloat(party.valor_total.replace("R$ ", "").replace(",", ".")),
+    0
+  );
 
-const prevMonthDate = new Date();
-prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
+  const prevMonthDate = new Date();
+  prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
 
   const prevMonth = prevMonthDate.getMonth() + 1;
   const prevYear = prevMonthDate.getFullYear();
@@ -167,18 +159,18 @@ prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
   });
 
   const previousMonthlyRevenue = previousMonthlyParties.reduce(
-  (sum, party) =>
-    sum + parseFloat(party.valor_total.replace("R$ ", "").replace(",", ".")),
-  0
-);
+    (sum, party) =>
+      sum + parseFloat(party.valor_total.replace("R$ ", "").replace(",", ".")),
+    0
+  );
 
   const festaVariation = previousMonthlyParties.length === 0
-  ? 100
-  : ((monthlyParties.length - previousMonthlyParties.length) / previousMonthlyParties.length) * 100;
+    ? 100
+    : ((monthlyParties.length - previousMonthlyParties.length) / previousMonthlyParties.length) * 100;
 
   const rendaVariation = previousMonthlyRevenue === 0
-  ? 100
-  : ((monthlyRevenue - previousMonthlyRevenue) / previousMonthlyRevenue) * 100;
+    ? 100
+    : ((monthlyRevenue - previousMonthlyRevenue) / previousMonthlyRevenue) * 100;
 
   // Format date for display (DD/MM)
   const formatDisplayDate = (dateString: string) => {
@@ -307,107 +299,49 @@ prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
     value >= 0 ? <TrendUpIcon /> : <TrendDownIcon />;
 
   const formattedVariation =
-  festaVariation >= 0
-    ? `+${festaVariation.toFixed(0)}%`
-    : `${festaVariation.toFixed(0)}%`;
+    festaVariation >= 0
+      ? `+${festaVariation.toFixed(0)}%`
+      : `${festaVariation.toFixed(0)}%`;
 
   const variationColor = Number(festaVariation) >= 0 ? "text-green-500" : "text-red-500";
 
   const statusOptions = [
-    { value: "pendente", label: "Pendente", icon: ClockIcon },
-    { value: "confirmado", label: "Confirmado", icon: CalendarIcon },
-    { value: "finalizado", label: "Finalizado", icon: CheckCircleIcon },
+    { value: "pendente", label: "Pendente" },
+    { value: "confirmado", label: "Confirmado" },
+    { value: "finalizado", label: "Finalizado" },
   ];
 
-  function StatusCell({ currentStatus, festaId, onUpdate }) {
-    const [status, setStatus] = useState(currentStatus);
-  
-    const updateStatus = async (newStatus: string) => {
-      try {
-        const response = await fetch(
-          `http://localhost:8000/api/locacoes/${festaId}/status/`,
-          {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ status: newStatus }),
-          }
-        );
-  
-        if (response.ok) {
-          setStatus(newStatus);
-          onUpdate(newStatus);
-        } else {
-          alert("Erro ao atualizar status.");
-        }
-      } catch (error) {
-        console.error("Erro na atualização:", error);
-      }
-    };
-  
-    const selected = statusOptions.find((s) => s.value === status);
-  
-    return (
-      <Menu as="div" className="relative inline-block text-left">
-        <Menu.Button
-          className={`px-3 py-1 rounded-md text-sm flex items-center gap-1 ${
-            status === "pendente"
-              ? "bg-yellow-100 text-yellow-800"
-              : status === "confirmado"
-              ? "bg-purple-100 text-purple-800"
-              : "bg-green-100 text-green-800"
-          }`}
-        >
-          <selected.icon className="h-4 w-4" />
-          {selected.label}
-          <svg
-            className="w-3 h-3 ml-1"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path
-              fillRule="evenodd"
-              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414L10 13.414 5.293 8.707a1 1 0 010-1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </Menu.Button>
-        <Menu.Items className="absolute z-50 mt-1 w-48 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
-          {statusOptions.map((option) => (
-            <Menu.Item key={option.value}>
-              {({ active }) => (
-                <button
-                  onClick={() => updateStatus(option.value)}
-                  className={`${
-                    active ? "bg-gray-100" : ""
-                  } w-full px-4 py-2 text-sm flex items-center gap-2 text-left`}
-                >
-                 <span
-                  className={`flex font-medium ${
-                    option.value === "pendente"
-                      ? "text-[#854d0e]"
-                      : option.value === "confirmado"
-                      ? "text-[#6b21a8]"
-                      : option.value === "finalizado"
-                      ? "text-[#166534]"
-                      : "text-gray-600"
 
-                  }`}
-                  >
-                  <option.icon className="flex h-4 w-4" />
-                  {option.label}
-                  </span>
-                </button>
-              )}
-            </Menu.Item>
-          ))}
-        </Menu.Items>
-      </Menu>
-    );
-  }
-  
+
+
+
+  const updateStatus = async (festaId: number, newStatus: string) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/locacoes/${festaId}/status/`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus }),
+        }
+      );
+
+      if (response.ok) {
+        setPartyStatuses(prev => ({
+          ...prev,
+          [festaId]: newStatus,
+        }));
+      } else {
+        alert("Erro ao atualizar status.");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <Layout>
+
       {/* Stats Cards Container */}
       <div className="hidden md:flex pb-3 items-start gap-4 self-stretch flex-wrap xl:flex-nowrap m:hidden">
         <StatCard
@@ -450,42 +384,42 @@ prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
 
       <div className="w-full overflow-x-auto md:hidden">
         <div className="flex gap-4 w-max">
-        <StatCard
-          title="Festas Hoje"
-          value={todaysParties.length.toString()}
-          icon={<PartyIcon />}
-          borderColor="border-l-[#00d17d]"
-        />
-        <StatCard
-          title="Renda Bruta Hoje"
-          value={`R$ ${todaysRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-          icon={<MoneyIcon />}
-          borderColor="border-l-[#fb923c]"
-        />
-        <StatCard
-          title="Festas no Mês"
-          value={monthlyParties.length.toString()}
-          icon={<PartyIcon />}
-          borderColor="border-l-[#22d3ee]"
-          trend={{
-            icon: TrendIcon(festaVariation),
-            value: <span className={variationColor}>{formattedVariation}</span>,
-            label: "mês Anterior",
-          }}
-        />
-        <StatCard
-          title="Renda Bruta Mensal"
-          value={`R$ ${monthlyRevenue.toLocaleString("pt-BR", {
-            minimumFractionDigits: 2,
-          })}`}
-          icon={<MoneyIcon />}
-          borderColor="border-l-[#facc15]"
-          trend={{
-            icon: TrendIcon(festaVariation),
-            value: <span className={variationColor}>{formattedVariation}</span>,
-            label: "mês Anterior",
-          }}
-        />
+          <StatCard
+            title="Festas Hoje"
+            value={todaysParties.length.toString()}
+            icon={<PartyIcon />}
+            borderColor="border-l-[#00d17d]"
+          />
+          <StatCard
+            title="Renda Bruta Hoje"
+            value={`R$ ${todaysRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+            icon={<MoneyIcon />}
+            borderColor="border-l-[#fb923c]"
+          />
+          <StatCard
+            title="Festas no Mês"
+            value={monthlyParties.length.toString()}
+            icon={<PartyIcon />}
+            borderColor="border-l-[#22d3ee]"
+            trend={{
+              icon: TrendIcon(festaVariation),
+              value: <span className={variationColor}>{formattedVariation}</span>,
+              label: "mês Anterior",
+            }}
+          />
+          <StatCard
+            title="Renda Bruta Mensal"
+            value={`R$ ${monthlyRevenue.toLocaleString("pt-BR", {
+              minimumFractionDigits: 2,
+            })}`}
+            icon={<MoneyIcon />}
+            borderColor="border-l-[#facc15]"
+            trend={{
+              icon: TrendIcon(festaVariation),
+              value: <span className={variationColor}>{formattedVariation}</span>,
+              label: "mês Anterior",
+            }}
+          />
         </div>
       </div>
 
@@ -524,247 +458,313 @@ prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
         {/* Party List */}
         <div className="flex flex-col items-start self-stretch gap-3 mt-6">
           {filteredParties.length > 0 ? (
-            filteredParties.map((party, index) => (
-              <div
-                key={party.id}
-                className={`w-full min-h-[144px] rounded-xl p-4 flex flex-col gap-2 ${
-                  party.status === "delivered"
+            filteredParties.map((party) => {
+              const status = partyStatuses[party.id];
+              const selected = statusOptions.find(s => s.value === status);
+
+              return (
+                <div key={party.id} className="w-full flex flex-col gap-2">
+
+                  <div className={`w-full min-h-[144px] rounded-xl p-4 flex flex-col gap-2 ${party.status === "delivered"
                     ? "bg-white border border-[#f3e8ff]"
                     : "bg-[#faf5ff]"
-                }`}
-              >
-                {/* Top Section - Client Info and Status */}
-                <div className="flex justify-between items-start w-full">
-                  {/* Left - Client Info */}
-                  <div className="flex flex-col gap-2 flex-1">
-                    <div className="flex w-fit h-7 py-0.5 justify-center items-center">
-                      <div className="text-[#1f2937] font-exo text-lg font-semibold leading-7">
-                        {party.cliente}
-                      </div>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <div className="text-[#9333ea] font-exo text-sm font-medium leading-5">
-                        {party.hora_festa}
-                      </div>
-                      <div className="text-[#6b7280] font-exo text-sm font-normal leading-5">
-                        {party.telefone}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right - Status Badge */}
-                  <div
-                    className={`flex items-center gap-2 px-3 py-2 rounded-full ${party.statusColor} h-9`}
-                    /*style={{
-                      width:
-                        party.status === "confirmado"
-                          ? "124px"
-                          : party.status === "finalizado"
-                            ? "118px"
-                            : "120px",
-                    }}*/
+                    }`}
                   >
-                    {party.status === "confirmado" && (
-                      <svg
-                        width="17"
-                        height="16"
-                        viewBox="0 0 17 16"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-4 h-4 flex-shrink-0"
-                      >
-                        <path
-                          d="M14.0833 4L6.74999 11.3333L3.41666 8"
-                          stroke="#166534"
-                          strokeWidth="1.33333"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    )}
-                    {party.status === "finalizado" && (
-                      <svg
-                        width="17"
-                        height="16"
-                        viewBox="0 0 17 16"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-4 h-4 flex-shrink-0"
-                      >
-                        <path
-                          d="M7.58333 14.4867C7.78603 14.6037 8.01595 14.6653 8.25 14.6653C8.48405 14.6653 8.71397 14.6037 8.91667 14.4867L13.5833 11.82C13.7858 11.7031 13.954 11.535 14.071 11.3326C14.188 11.1301 14.2498 10.9005 14.25 10.6667V5.33335C14.2498 5.09953 14.188 4.86989 14.071 4.66746C13.954 4.46503 13.7858 4.29692 13.5833 4.18002L8.91667 1.51335C8.71397 1.39633 8.48405 1.33472 8.25 1.33472C8.01595 1.33472 7.78603 1.39633 7.58333 1.51335L2.91667 4.18002C2.71418 4.29692 2.54599 4.46503 2.42897 4.66746C2.31196 4.86989 2.25024 5.09953 2.25 5.33335V10.6667C2.25024 10.9005 2.31196 11.1301 2.42897 11.3326C2.54599 11.535 2.71418 11.7031 2.91667 11.82L7.58333 14.4867Z"
-                          stroke="#6B21A8"
-                          strokeWidth="1.33333"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M8.25 14.6667V8"
-                          stroke="#6B21A8"
-                          strokeWidth="1.33333"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M2.44333 4.66669L8.25 8.00002L14.0567 4.66669"
-                          stroke="#6B21A8"
-                          strokeWidth="1.33333"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M5.25 2.84668L11.25 6.28001"
-                          stroke="#6B21A8"
-                          strokeWidth="1.33333"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    )}
-                    {party.status === "pendente" && (
-                      <svg
-                        width="17"
-                        height="16"
-                        viewBox="0 0 17 16"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-4 h-4 flex-shrink-0"
-                      >
-                        <path
-                          d="M8.75001 14.6666C12.4319 14.6666 15.4167 11.6819 15.4167 7.99998C15.4167 4.31808 12.4319 1.33331 8.75001 1.33331C5.06811 1.33331 2.08334 4.31808 2.08334 7.99998C2.08334 11.6819 5.06811 14.6666 8.75001 14.6666Z"
-                          stroke="#854D0E"
-                          strokeWidth="1.33333"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M8.75 4V8L11.4167 9.33333"
-                          stroke="#854D0E"
-                          strokeWidth="1.33333"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    )}
-                   <div className="text-center">
-                      {party.statusComponent}
-                    </div>
-                    <svg
-                      width="17"
-                      height="16"
-                      viewBox="0 0 17 16"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="w-4 h-4 flex-shrink-0 opacity-70"
-                    >
-                      <g opacity="0.7">
-                        <path
-                          d="M4.2 6L8.2 10L12.2 6"
-                          stroke="currentColor"
-                          strokeWidth="1.33333"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </g>
-                    </svg>
-                  </div>
-                </div>
-
-                {/* Bottom Section - Value, Items, Actions */}
-                <div className="flex justify-between items-end w-full mt-4">
-                  {/* Left - Value and Items */}
-                  <div className="flex gap-8 items-end">
-                    {/* Value */}
-                    <div className="flex flex-col gap-1">
-                      <div className="text-[#6b7280] font-exo text-xs font-normal leading-4">
-                        Valor Total
-                      </div>
-                      <div className="text-[#1f2937] font-exo text-base font-medium leading-6">
-                        {party.valor_total}
-                      </div>
-                    </div>
-
-                    {/* Items */}
-                    <div className="hidden md:flex flex flex-col justify-center h-[43px]">
-                      <div className="text-[#a1a1aa] font-exo text-base font-normal leading-6">
-                        <div className='grid grid-flow-col grid-rows-2 gap-x-4 gap-y-1'>
-                          {party.items.map((item, itemIndex) => (
-                            <div key={itemIndex} className="text-[#a1a1aa] font-exo text-base font-normal leading-6">
-                            {item}
-                            </div>
-                          ))}
+                    {/* Top Section - Client Info and Status */}
+                    <div className="flex justify-between items-start w-full">
+                      {/* Left - Client Info */}
+                      <div className="flex flex-col gap-2 flex-1">
+                        <div className="flex w-fit h-7 py-0.5 justify-center items-center">
+                          <div className="text-[#1f2937] font-exo text-lg font-semibold leading-7">
+                            {party.cliente}
+                          </div>
+                        </div>
+                        <div className="flex gap-2 items-center">
+                          <div className="text-[#9333ea] font-exo text-sm font-medium leading-5">
+                            {party.hora_festa}
+                          </div>
+                          <div className="text-[#6b7280] font-exo text-sm font-normal leading-5">
+                            {party.telefone}
                           </div>
                         </div>
                       </div>
+
+                      {/* Right - Status Badge */}
+                      <div className={`flex items-center gap-2 py-2 h-9`}>
+                        <div className="">
+                          <Menu as='div' className="w-full">
+                            <Menu.Button
+                              className={`px-3 py-1 rounded-full text-sm flex items-center gap-1 ${status === "pendente"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : status === "confirmado"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-purple-100 text-purple-800"
+                                }`}
+                            >
+
+
+                              {/* Right - Status Badge */}
+                              <div
+                                className={`flex items-center gap-2 px-3 py-2 rounded-full h-9`}
+                              >
+                                {party.status === "confirmado" && (
+                                  <svg
+                                    width="17"
+                                    height="16"
+                                    viewBox="0 0 17 16"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="w-4 h-4 flex-shrink-0"
+                                  >
+                                    <path
+                                      d="M14.0833 4L6.74999 11.3333L3.41666 8"
+                                      stroke="#166534"
+                                      strokeWidth="1.33333"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                )}
+                                {party.status === "finalizado" && (
+                                  <svg
+                                    width="17"
+                                    height="16"
+                                    viewBox="0 0 17 16"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="w-4 h-4 flex-shrink-0"
+                                  >
+                                    <path
+                                      d="M7.58333 14.4867C7.78603 14.6037 8.01595 14.6653 8.25 14.6653C8.48405 14.6653 8.71397 14.6037 8.91667 14.4867L13.5833 11.82C13.7858 11.7031 13.954 11.535 14.071 11.3326C14.188 11.1301 14.2498 10.9005 14.25 10.6667V5.33335C14.2498 5.09953 14.188 4.86989 14.071 4.66746C13.954 4.46503 13.7858 4.29692 13.5833 4.18002L8.91667 1.51335C8.71397 1.39633 8.48405 1.33472 8.25 1.33472C8.01595 1.33472 7.78603 1.39633 7.58333 1.51335L2.91667 4.18002C2.71418 4.29692 2.54599 4.46503 2.42897 4.66746C2.31196 4.86989 2.25024 5.09953 2.25 5.33335V10.6667C2.25024 10.9005 2.31196 11.1301 2.42897 11.3326C2.54599 11.535 2.71418 11.7031 2.91667 11.82L7.58333 14.4867Z"
+                                      stroke="#6B21A8"
+                                      strokeWidth="1.33333"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                    <path
+                                      d="M8.25 14.6667V8"
+                                      stroke="#6B21A8"
+                                      strokeWidth="1.33333"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                    <path
+                                      d="M2.44333 4.66669L8.25 8.00002L14.0567 4.66669"
+                                      stroke="#6B21A8"
+                                      strokeWidth="1.33333"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                    <path
+                                      d="M5.25 2.84668L11.25 6.28001"
+                                      stroke="#6B21A8"
+                                      strokeWidth="1.33333"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                )}
+                                {party.status === "pendente" && (
+                                  <svg
+                                    width="17"
+                                    height="16"
+                                    viewBox="0 0 17 16"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="w-4 h-4 flex-shrink-0"
+                                  >
+                                    <path
+                                      d="M8.75001 14.6666C12.4319 14.6666 15.4167 11.6819 15.4167 7.99998C15.4167 4.31808 12.4319 1.33331 8.75001 1.33331C5.06811 1.33331 2.08334 4.31808 2.08334 7.99998C2.08334 11.6819 5.06811 14.6666 8.75001 14.6666Z"
+                                      stroke="#854D0E"
+                                      strokeWidth="1.33333"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                    <path
+                                      d="M8.75 4V8L11.4167 9.33333"
+                                      stroke="#854D0E"
+                                      strokeWidth="1.33333"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </svg>
+                                )}
+
+                              </div>
+                              {selected.label}
+                              <div>
+                                <svg
+                                  width="17"
+                                  height="16"
+                                  viewBox="0 0 17 16"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="w-4 h-4 flex-shrink-0 opacity-70"
+                                >
+                                  <g opacity="0.7">
+                                    <path
+                                      d="M4.2 6L8.2 10L12.2 6"
+                                      stroke="currentColor"
+                                      strokeWidth="1.33333"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    />
+                                  </g>
+                                </svg>
+                              </div>
+                            </Menu.Button>
+
+                            <Menu.Items className="absolute z-50 mt-1 w-48 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                              {statusOptions.map((option) => (
+                                <Menu.Item key={option.value}>
+                                  {({ active }) => (
+                                    <button onClick={() => updateStatus(party.id, option.value)} className={`${active ? "bg-gray-100" : ""} w-full px-4 py-2 text-sm flex items-center gap-2 text-left`}>
+                                      <span className={`flex font-medium ${option.value === "pendente" ? "text-[#854d0e]" : option.value === "confirmado" ? "text-[#166534]" : option.value === "finalizado" ? "text-[#6b21a8]" : "text-gray-600"}`}>
+                                        {option.label}
+                                      </span>
+                                    </button>
+                                  )}
+                                </Menu.Item>
+                              ))}
+                            </Menu.Items>
+
+                          </Menu>
+                        </div>
+
+                      </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     </div>
 
-                  {/* Right - Action Buttons */}
-                  <div className="flex gap-2">
-                    <button className="flex w-9 h-9 p-2 justify-center items-center rounded bg-[#dbeafe] hover:bg-[#bfdbfe] transition-colors">
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 20 20"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-5 h-5 flex-shrink-0"
-                      >
-                        <path
-                          d="M10 15.4166L7.5 14.1666L2.5 16.6666V5.83331L7.5 3.33331L12.5 5.83331L17.5 3.33331V9.58331"
-                          stroke="#2563EB"
-                          strokeWidth="1.66667"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M7.5 3.33331V14.1666"
-                          stroke="#2563EB"
-                          strokeWidth="1.66667"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M12.5 5.83331V10.4166"
-                          stroke="#2563EB"
-                          strokeWidth="1.66667"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M17.6008 16.7675C17.9505 16.4179 18.1887 15.9724 18.2852 15.4875C18.3817 15.0025 18.3323 14.4998 18.1431 14.0429C17.9539 13.5861 17.6335 13.1956 17.2223 12.9208C16.8112 12.6461 16.3278 12.4995 15.8333 12.4995C15.3388 12.4995 14.8554 12.6461 14.4443 12.9208C14.0332 13.1956 13.7127 13.5861 13.5235 14.0429C13.3343 14.4998 13.2849 15.0025 13.3814 15.4875C13.4779 15.9724 13.7161 16.4179 14.0658 16.7675C14.4141 17.1167 15.0033 17.6383 15.8333 18.3333C16.7091 17.5917 17.2991 17.07 17.6008 16.7675Z"
-                          stroke="#2563EB"
-                          strokeWidth="1.66667"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M15.8333 15V15.0083"
-                          stroke="#2563EB"
-                          strokeWidth="1.66667"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </button>
-                    <button className="flex w-9 h-9 p-2 justify-center items-center rounded bg-[#f3f4f6] hover:bg-[#e5e7eb] transition-colors">
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 20 20"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-5 h-5 flex-shrink-0"
-                      >
-                        <path
-                          d="M9.99998 8.33331C9.08331 8.33331 8.33331 9.08331 8.33331 9.99998C8.33331 10.9166 9.08331 11.6666 9.99998 11.6666C10.9166 11.6666 11.6666 10.9166 11.6666 9.99998C11.6666 9.08331 10.9166 8.33331 9.99998 8.33331ZM9.99998 3.33331C9.08331 3.33331 8.33331 4.08331 8.33331 4.99998C8.33331 5.91665 9.08331 6.66665 9.99998 6.66665C10.9166 6.66665 11.6666 5.91665 11.6666 4.99998C11.6666 4.08331 10.9166 3.33331 9.99998 3.33331ZM9.99998 13.3333C9.08331 13.3333 8.33331 14.0833 8.33331 15C8.33331 15.9166 9.08331 16.6666 9.99998 16.6666C10.9166 16.6666 11.6666 15.9166 11.6666 15C11.6666 14.0833 10.9166 13.3333 9.99998 13.3333Z"
-                          fill="#4B5563"
-                        />
-                      </svg>
-                    </button>
+                    {/* Bottom Section - Value, Items, Actions */}
+                    <div className="flex justify-between items-end w-full mt-4">
+                      {/* Left - Value and Items */}
+                      <div className="flex gap-8 items-end">
+                        {/* Value */}
+                        <div className="flex flex-col gap-1">
+                          <div className="text-[#6b7280] font-exo text-xs font-normal leading-4">
+                            Valor Total
+                          </div>
+                          <div className="text-[#1f2937] font-exo text-base font-medium leading-6">
+                            {party.valor_total}
+                          </div>
+                        </div>
+
+                        {/* Items */}
+                        <div className="hidden md:flex flex flex-col justify-center h-[43px]">
+                          <div className="text-[#a1a1aa] font-exo text-base font-normal leading-6">
+                            <div className='grid grid-flow-col grid-rows-2 gap-x-4 gap-y-1'>
+                              {party.items.map((item, itemIndex) => (
+                                <div key={itemIndex} className="text-[#a1a1aa] font-exo text-base font-normal leading-6">
+                                  {item}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right - Action Buttons */}
+                      <div className="flex gap-2">
+                        <button className="flex w-9 h-9 p-2 justify-center items-center rounded bg-[#dbeafe] hover:bg-[#bfdbfe] transition-colors">
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-5 h-5 flex-shrink-0"
+                          >
+                            <path
+                              d="M10 15.4166L7.5 14.1666L2.5 16.6666V5.83331L7.5 3.33331L12.5 5.83331L17.5 3.33331V9.58331"
+                              stroke="#2563EB"
+                              strokeWidth="1.66667"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M7.5 3.33331V14.1666"
+                              stroke="#2563EB"
+                              strokeWidth="1.66667"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M12.5 5.83331V10.4166"
+                              stroke="#2563EB"
+                              strokeWidth="1.66667"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M17.6008 16.7675C17.9505 16.4179 18.1887 15.9724 18.2852 15.4875C18.3817 15.0025 18.3323 14.4998 18.1431 14.0429C17.9539 13.5861 17.6335 13.1956 17.2223 12.9208C16.8112 12.6461 16.3278 12.4995 15.8333 12.4995C15.3388 12.4995 14.8554 12.6461 14.4443 12.9208C14.0332 13.1956 13.7127 13.5861 13.5235 14.0429C13.3343 14.4998 13.2849 15.0025 13.3814 15.4875C13.4779 15.9724 13.7161 16.4179 14.0658 16.7675C14.4141 17.1167 15.0033 17.6383 15.8333 18.3333C16.7091 17.5917 17.2991 17.07 17.6008 16.7675Z"
+                              stroke="#2563EB"
+                              strokeWidth="1.66667"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M15.8333 15V15.0083"
+                              stroke="#2563EB"
+                              strokeWidth="1.66667"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+                        <button className="flex w-9 h-9 p-2 justify-center items-center rounded bg-[#f3f4f6] hover:bg-[#e5e7eb] transition-colors">
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-5 h-5 flex-shrink-0"
+                          >
+                            <path
+                              d="M9.99998 8.33331C9.08331 8.33331 8.33331 9.08331 8.33331 9.99998C8.33331 10.9166 9.08331 11.6666 9.99998 11.6666C10.9166 11.6666 11.6666 10.9166 11.6666 9.99998C11.6666 9.08331 10.9166 8.33331 9.99998 8.33331ZM9.99998 3.33331C9.08331 3.33331 8.33331 4.08331 8.33331 4.99998C8.33331 5.91665 9.08331 6.66665 9.99998 6.66665C10.9166 6.66665 11.6666 5.91665 11.6666 4.99998C11.6666 4.08331 10.9166 3.33331 9.99998 3.33331ZM9.99998 13.3333C9.08331 13.3333 8.33331 14.0833 8.33331 15C8.33331 15.9166 9.08331 16.6666 9.99998 16.6666C10.9166 16.6666 11.6666 15.9166 11.6666 15C11.6666 14.0833 10.9166 13.3333 9.99998 13.3333Z"
+                              fill="#4B5563"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <div className="flex py-[52px] pb-7 flex-col items-start self-stretch">
               <div className="flex-1 text-[#a1a1aa] text-center font-exo text-xl font-bold leading-7 flex justify-center items-center self-stretch">
@@ -774,6 +774,8 @@ prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
           )}
         </div>
       </div>
+
     </Layout>
+
   );
 }
