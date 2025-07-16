@@ -11,7 +11,7 @@ export default function EditarCliente() {
 
   // Endpoint que retorna os dados do cliente.ID do banco de dados
   useEffect(() => {
-    fetch(`http://localhost:8000/api/clientes/${id}/`)
+    fetch(`https://toy-rental-backend.onrender.com/api/clientes/${id}/`)
       .then(async (res) => {
         if (!res.ok) {
           throw new Error("Erro ao carregar cliente");
@@ -47,7 +47,7 @@ export default function EditarCliente() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch(`http://localhost:8000/api/clientes/${id}/`, {
+      const res = await fetch(`https://toy-rental-backend.onrender.com/api/clientes/${id}/`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(cliente),
@@ -68,7 +68,7 @@ export default function EditarCliente() {
   // Função para method "DELETE" por ID 
   const handleDelete = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/api/clientes/${id}/`, {
+      const res = await fetch(`https://toy-rental-backend.onrender.com/api/clientes/${id}/`, {
         method: 'DELETE',
       });
 

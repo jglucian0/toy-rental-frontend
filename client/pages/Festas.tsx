@@ -12,7 +12,7 @@ import { useRef } from "react";
 export default function Index() {
   // Endpoint que retorna todas as festas do banco de dados
   useEffect(() => {
-    fetch("http://localhost:8000/api/festas/")
+    fetch("https://toy-rental-backend.onrender.com/api/festas/")
       .then((res) => res.json())
       .then((data) => setFestas(data))
       .catch((err) => console.error("Erro ao buscar festas:", err));
@@ -50,7 +50,7 @@ export default function Index() {
   // Função para method "DELETE" por ID 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/festas/${id}/`, {
+      const res = await fetch(`https://toy-rental-backend.onrender.com/api/festas/${id}/`, {
         method: "DELETE",
       });
 
@@ -123,7 +123,7 @@ export default function Index() {
   const handleClearFilter = async () => {
     setSelectedDate(null);
     try {
-      const res = await fetch("http://localhost:8000/api/festas/");
+      const res = await fetch("https://toy-rental-backend.onrender.com/api/festas/");
       const data = await res.json();
       setFestas(data);
       toast.success("Filtro de data removido.");
@@ -141,7 +141,7 @@ export default function Index() {
       const dataFormatada = formatDateToYMD(date);
 
       try {
-        const res = await fetch(`http://localhost:8000/api/festas/?data_festa=${dataFormatada}`);
+        const res = await fetch(`https://toy-rental-backend.onrender.com/api/festas/?data_festa=${dataFormatada}`);
         const data = await res.json();
         setFestas(data);
       } catch (error) {

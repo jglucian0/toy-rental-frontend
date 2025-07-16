@@ -7,7 +7,7 @@ import * as Icons from "../components/Icons";
 export default function Clientes() {
   // Endpoint que retorna todos os clientes do banco de dados
   useEffect(() => {
-    fetch('http://localhost:8000/api/clientes/')
+    fetch('https://toy-rental-backend.onrender.com/api/clientes/')
       .then((res) => res.json())
       .then((data) => setClientes(data))
       .catch((err) => console.error(err));

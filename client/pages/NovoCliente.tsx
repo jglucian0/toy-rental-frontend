@@ -31,7 +31,7 @@ export default function FormCliente() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:8000/api/clientes/novo/", {
+      const res = await fetch("https://toy-rental-backend.onrender.com/api/clientes/novo/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(cliente),

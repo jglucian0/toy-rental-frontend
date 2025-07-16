@@ -52,7 +52,7 @@ export default function EditarFesta() {
   });
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/festas/${id}/`)
+    fetch(`https://toy-rental-backend.onrender.com/api/festas/${id}/`)
       .then(async (res) => {
         if (!res.ok) {
           const err = await res.json();
@@ -94,7 +94,7 @@ export default function EditarFesta() {
       if (festa.data_festa && festa.data_retirada) {
         try {
           const res = await fetch(
-            `http://localhost:8000/api/brinquedos/disponiveis/?data_festa=${festa.data_festa}&data_retirada=${festa.data_retirada}`
+            `https://toy-rental-backend.onrender.com/api/brinquedos/disponiveis/?data_festa=${festa.data_festa}&data_retirada=${festa.data_retirada}`
           );
           const data = await res.json();
 
@@ -209,7 +209,7 @@ export default function EditarFesta() {
     }
 
     try {
-      const res = await fetch(`http://localhost:8000/api/festas/${id}/`, {
+      const res = await fetch(`https://toy-rental-backend.onrender.com/api/festas/${id}/`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

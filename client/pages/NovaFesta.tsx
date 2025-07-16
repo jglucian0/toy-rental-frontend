@@ -19,7 +19,7 @@ export default function FormCliente() {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-      fetch('http://localhost:8000/api/clientes/')
+      fetch('https://toy-rental-backend.onrender.com/api/clientes/')
         .then((res) => res.json())
         .then((data) => setClientes(data))
         .catch((err) => console.error(err));
@@ -101,7 +101,7 @@ export default function FormCliente() {
       if (festa.data_festa && festa.data_retirada) {
         try {
           const res = await fetch(
-            `http://localhost:8000/api/brinquedos/disponiveis/?data_festa=${festa.data_festa}&data_retirada=${festa.data_retirada}`
+            `https://toy-rental-backend.onrender.com/api/brinquedos/disponiveis/?data_festa=${festa.data_festa}&data_retirada=${festa.data_retirada}`
           );
           const data = await res.json();
           setBrinquedosDisponiveis(data);
@@ -196,7 +196,7 @@ export default function FormCliente() {
     }
   
     try {
-      const res = await fetch("http://localhost:8000/api/festas/nova/", {
+      const res = await fetch("https://toy-rental-backend.onrender.com/api/festas/nova/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

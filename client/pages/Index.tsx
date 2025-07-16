@@ -41,7 +41,7 @@ export default function Index() {
   useEffect(() => {
     const fetchLocacoes = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/locacoes-hoje/");
+        const response = await fetch("https://toy-rental-backend.onrender.com/api/locacoes-hoje/");
         const data = await response.json();
         setLocacoes(data);
 
@@ -318,7 +318,7 @@ export default function Index() {
   const updateStatus = async (festaId: number, newStatus: string) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/api/locacoes/${festaId}/status/`,
+        `https://toy-rental-backend.onrender.com/api/locacoes/${festaId}/status/`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
