@@ -101,8 +101,17 @@ export default function Clientes() {
           {/* Add Cliente */}
           <button onClick={() => navigate("/clientes/novo")} className="flex items-center justify-center gap-2 h-9 px-4 py-2 bg-dark-bg rounded-md shadow-sm hover:bg-gray-50 transition-colors">
             <Icons.NewMoreIcon />
-            <span className="text-[#a1a1aa] mt-1 font-exo text-lg font-bold leading-7">
-              Adicionar cliente
+            <span className="text-[#a1a1aa] mt-1 font-exo sm:text-lg font-bold leading-7">
+              {/* Mobile: só dois primeiros nomes */}
+              <span className="block md:hidden">
+                Adicionar
+              </span>
+
+              {/* Desktop: nome completo */}
+              <span className="hidden md:block">
+                Adicionar cliente
+              </span>
+                
             </span>
           </button>
         </div>
@@ -152,16 +161,16 @@ export default function Clientes() {
                 {filteredClientes.length > 0 ? (
                   filteredClientes.map((cliente: any, index: number) => (
                     <tr key={cliente.id || index} className="border-t border-row-border">
-                      <td className="py-4 px-6 text-data-text font-light text-base leading-6">
+                      <td className="whitespace-nowrap py-4 px-6 text-data-text font-light text-base leading-6">
                         {cliente.nome}
                       </td>
-                      <td className="py-4 px-6 text-data-text font-light text-base leading-6">
+                      <td className="whitespace-nowrap py-4 px-6 text-data-text font-light text-base leading-6">
                         {formatDocument(cliente.documento)}
                       </td>
-                      <td className="py-4 px-6 text-data-text font-light text-base leading-6">
+                      <td className="whitespace-nowrap py-4 px-6 text-data-text font-light text-base leading-6">
                         {formatPhone(cliente.telefone)}
                       </td>
-                      <td className="py-4 px-6 text-data-text font-light text-base leading-6">
+                      <td className="whitespace-nowrap  py-4 px-6 text-data-text font-light text-base leading-6">
                         {cliente.status}
                       </td>
                       <td className="py-4 px-6">

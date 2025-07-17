@@ -158,6 +158,17 @@ export default function Index() {
     return year === prevYear && month === prevMonth;
   });
 
+  function doisPrimeirosNomes(nomeCompleto) {
+    if (!nomeCompleto) return "";
+    const nomes = nomeCompleto.trim().split(" ");
+    const primeiro = nomes[0] || "";
+    const segundo = nomes[1] || "";
+
+    const totalLetras = primeiro.length + segundo.length;
+
+    return totalLetras > 14 ? primeiro : `${primeiro} ${segundo}`.trim();
+  }
+
   const previousMonthlyRevenue = previousMonthlyParties.reduce(
     (sum, party) =>
       sum + parseFloat(party.valor_total.replace("R$ ", "").replace(",", ".")),
@@ -475,15 +486,23 @@ export default function Index() {
                       {/* Left - Client Info */}
                       <div className="flex flex-col gap-2 flex-1">
                         <div className="flex w-fit h-7 py-0.5 justify-center items-center">
-                          <div className="text-[#1f2937] font-exo text-lg font-semibold leading-7">
-                            {party.cliente}
+                          <div className="text-[#1f2937] font-exo mr-4 text-lg font-semibold sm:leading-7">
+                            {/* Mobile: só dois primeiros nomes */}
+                            <span className="block md:hidden">
+                              {doisPrimeirosNomes(party.cliente)}
+                            </span>
+
+                            {/* Desktop: nome completo */}
+                            <span className="hidden md:block">
+                              {party.cliente}
+                            </span>
                           </div>
                         </div>
                         <div className="flex gap-2 items-center">
                           <div className="text-[#9333ea] font-exo text-sm font-medium leading-5">
                             {party.hora_festa}
                           </div>
-                          <div className="text-[#6b7280] font-exo text-sm font-normal leading-5">
+                          <div className="text-[#6b7280] font-exo text-xs sm:text-sm font-normal leading-5">
                             {party.telefone}
                           </div>
                         </div>
@@ -494,7 +513,7 @@ export default function Index() {
                         <div className="">
                           <Menu as='div' className="w-full">
                             <Menu.Button
-                              className={`px-3 py-1 rounded-full text-sm flex items-center gap-1 ${status === "pendente"
+                              className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm flex items-center gap-1 ${status === "pendente"
                                 ? "bg-yellow-100 text-yellow-800"
                                 : status === "confirmado"
                                   ? "bg-green-100 text-green-800"
@@ -505,7 +524,7 @@ export default function Index() {
 
                               {/* Right - Status Badge */}
                               <div
-                                className={`flex items-center gap-2 px-3 py-2 rounded-full h-9`}
+                                className={`flex items-center gap-2 px-1 sm:px-3 py-2 rounded-full h-9`}
                               >
                                 {party.status === "confirmado" && (
                                   <svg
@@ -514,7 +533,7 @@ export default function Index() {
                                     viewBox="0 0 17 16"
                                     fill="none"
                                     xmlns="http://www.w3.org/2000/svg"
-                                    className="w-4 h-4 flex-shrink-0"
+                                    className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0"
                                   >
                                     <path
                                       d="M14.0833 4L6.74999 11.3333L3.41666 8"
@@ -532,7 +551,7 @@ export default function Index() {
                                     viewBox="0 0 17 16"
                                     fill="none"
                                     xmlns="http://www.w3.org/2000/svg"
-                                    className="w-4 h-4 flex-shrink-0"
+                                    className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0"
                                   >
                                     <path
                                       d="M7.58333 14.4867C7.78603 14.6037 8.01595 14.6653 8.25 14.6653C8.48405 14.6653 8.71397 14.6037 8.91667 14.4867L13.5833 11.82C13.7858 11.7031 13.954 11.535 14.071 11.3326C14.188 11.1301 14.2498 10.9005 14.25 10.6667V5.33335C14.2498 5.09953 14.188 4.86989 14.071 4.66746C13.954 4.46503 13.7858 4.29692 13.5833 4.18002L8.91667 1.51335C8.71397 1.39633 8.48405 1.33472 8.25 1.33472C8.01595 1.33472 7.78603 1.39633 7.58333 1.51335L2.91667 4.18002C2.71418 4.29692 2.54599 4.46503 2.42897 4.66746C2.31196 4.86989 2.25024 5.09953 2.25 5.33335V10.6667C2.25024 10.9005 2.31196 11.1301 2.42897 11.3326C2.54599 11.535 2.71418 11.7031 2.91667 11.82L7.58333 14.4867Z"
@@ -571,7 +590,7 @@ export default function Index() {
                                     viewBox="0 0 17 16"
                                     fill="none"
                                     xmlns="http://www.w3.org/2000/svg"
-                                    className="w-4 h-4 flex-shrink-0"
+                                    className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0"
                                   >
                                     <path
                                       d="M8.75001 14.6666C12.4319 14.6666 15.4167 11.6819 15.4167 7.99998C15.4167 4.31808 12.4319 1.33331 8.75001 1.33331C5.06811 1.33331 2.08334 4.31808 2.08334 7.99998C2.08334 11.6819 5.06811 14.6666 8.75001 14.6666Z"
@@ -599,7 +618,7 @@ export default function Index() {
                                   viewBox="0 0 17 16"
                                   fill="none"
                                   xmlns="http://www.w3.org/2000/svg"
-                                  className="w-4 h-4 flex-shrink-0 opacity-70"
+                                  className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0 opacity-70"
                                 >
                                   <g opacity="0.7">
                                     <path
@@ -614,7 +633,7 @@ export default function Index() {
                               </div>
                             </Menu.Button>
 
-                            <Menu.Items className="absolute z-50 mt-1 w-48 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                            <Menu.Items className="absolute z-50 mt-1 w-32 sm:w-40 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                               {statusOptions.map((option) => (
                                 <Menu.Item key={option.value}>
                                   {({ active }) => (

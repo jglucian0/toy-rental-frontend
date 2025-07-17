@@ -165,8 +165,17 @@ export default function Index() {
             {/* Add Festa */}
             <button onClick={() => navigate("/festas/nova")} className="flex items-center justify-center gap-2 h-9 px-4 py-2 bg-dark-bg rounded-md shadow-sm hover:bg-gray-50 transition-colors">
               <Icons.NewMoreIcon />
-              <span className="text-[#a1a1aa] mt-1 font-exo text-lg font-bold leading-7">
-                Adicionar festa
+              <span className="text-[#a1a1aa] mt-1 font-exo sm:text-lg font-bold leading-7">
+                {/* Mobile: só dois primeiros nomes */}
+                <span className="block md:hidden">
+                  Adicionar
+                </span>
+
+                {/* Desktop: nome completo */}
+                <span className="hidden md:block">
+                  Adicionar cliente
+                </span>
+
               </span>
             </button>
           </div>
@@ -176,9 +185,24 @@ export default function Index() {
 
             {/* Search Section */}
             <div className="flex w-full flex-col md:flex-row justify-between items-start md:items-end gap-4 md:gap-0 mb-6">
-              {/* Search Bar */}
-              <div className="flex items-center border border-blue-border max-w-[638px] rounded-2xl px-1 ">
+              {/* Search Bar desktop*/}
+              <div className="hidden md:flex items-center border border-blue-border max-w-[638px] rounded-2xl px-1 ">
                 <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Pesquisar por Nome ou Valor" className="flex-1 md:w-80 px-4 py-2 text-gray-placeholder font-light text-base bg-transparent outline-none" />
+                <svg
+                  className="w-4 h-4 opacity-30"
+                  viewBox="0 0 17 17"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <g opacity="0.3">
+                    <path d="M15.9866 0.328369H1.48818C0.821989 0.328369 0.485833 1.13668 0.957864 1.60871L6.7373 7.38903V13.8284C6.7373 14.0731 6.85671 14.3024 7.05721 14.4428L9.55721 16.1922C10.0504 16.5374 10.7373 16.1875 10.7373 15.5777V7.38903L16.5169 1.60871C16.988 1.13762 16.6541 0.328369 15.9866 0.328369Z" fill="#2182F1" />
+                  </g>
+                </svg>
+              </div>
+
+              {/* Search Bar mobile */}
+              <div className="flex md:hidden items-center border border-blue-border rounded-2xl px-1 w-full md:w-auto md:ml-auto">
+                <input type="text" placeholder="Pesquisar por Nome ou Documento" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="flex-1 md:w-80 px-4 py-2 text-gray-placeholder font-light text-base bg-transparent outline-none" />
                 <svg
                   className="w-4 h-4 opacity-30"
                   viewBox="0 0 17 17"
@@ -268,19 +292,19 @@ export default function Index() {
                       key={festa.id}
                       className={`${index > 0 ? "border-t border-festas-blue-100" : ""}`}
                     >
-                      <td className="py-4 px-6 text-base text-gray-900">
+                      <td className="whitespace-nowrap py-4 px-6 text-base text-gray-900">
                         {festa.cliente.nome}
                       </td>
-                      <td className="py-4 px-6 text-base text-gray-900">
+                      <td className="whitespace-nowrap py-4 px-6 text-base text-gray-900">
                         {festa.data_festa}
                       </td>
-                      <td className="py-4 px-6 text-base text-gray-900">
+                      <td className="whitespace-nowrap py-4 px-6 text-base text-gray-900">
                         {festa.data_retirada}
                       </td>
-                      <td className="py-4 px-6 text-base text-gray-900">
+                      <td className="whitespace-nowrap py-4 px-6 text-base text-gray-900">
                         {`R$ ${parseFloat(festa.valor_total).toFixed(2).replace(".", ",")}`}
                       </td>
-                      <td className="py-4 px-6 text-base text-gray-900">
+                      <td className="whitespace-nowrap py-4 px-6 text-base text-gray-900">
                         {statusLabelMap[festa.status] || festa.status}
                       </td>
                       <td className="flex flex-col py-4 px-6 text-base text-gray-900">
