@@ -96,6 +96,23 @@ export default function Index() {
     return `${year}-${month}-${day}`;
   };
 
+  const formatDateToDayAndMonth = (dateString: string) => {
+  const date = new Date(dateString);
+
+  const day = String(date.getDate() + 1).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+
+  // Obtém o nome do dia da semana em português
+  const weekday = date.toLocaleDateString("pt-BR", {
+    weekday: "long",
+  });
+
+  // Capitaliza a primeira letra
+  const capitalizedWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+
+  return `${day}/${month} - ${capitalizedWeekday}`;
+};
+
   // Normaliza a busca para evitar erros por diferenças de formatação
   const normalizedSearchTerm = cleanText(searchTerm);
   const cleanedSearchTerm = cleanNumber(searchTerm);
@@ -296,10 +313,10 @@ export default function Index() {
                         {festa.cliente.nome}
                       </td>
                       <td className="whitespace-nowrap py-4 px-6 text-base text-gray-900">
-                        {festa.data_festa}
+                        {formatDateToDayAndMonth(festa.data_festa)}
                       </td>
                       <td className="whitespace-nowrap py-4 px-6 text-base text-gray-900">
-                        {festa.data_retirada}
+                        {formatDateToDayAndMonth(festa.data_retirada)}
                       </td>
                       <td className="whitespace-nowrap py-4 px-6 text-base text-gray-900">
                         {`R$ ${parseFloat(festa.valor_total).toFixed(2).replace(".", ",")}`}
@@ -307,7 +324,7 @@ export default function Index() {
                       <td className="whitespace-nowrap py-4 px-6 text-base text-gray-900">
                         {statusLabelMap[festa.status] || festa.status}
                       </td>
-                      <td className="flex flex-col py-4 px-6 text-base text-gray-900">
+                      <td className="whitespace-nowrap flex flex-col py-4 px-6 text-base text-gray-900">
                         {festa.brinquedos.map((b: any, index: number) => (
                           <div key={index} className="text-base font-normal leading-6">
                             {b.nome} (1)

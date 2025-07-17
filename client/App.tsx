@@ -14,6 +14,7 @@ import EditarCliente from "./pages/EditarCliente";
 import Festas from "./pages/Festas";
 import NovaFesta from "./pages/NovaFesta"
 import EditarFesta from "./pages/EditarFesta";
+import Brinquedos from "./pages/Brinquedos";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/festas" element={<Festas />} />
           <Route path="/festas/nova" element={<NovaFesta/> } />
           <Route path="/festas/editar/:id" element={<EditarFesta />} />
+          <Route path="/brinquedos/" element={<Brinquedos />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

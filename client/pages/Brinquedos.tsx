@@ -95,7 +95,7 @@ export default function Clientes() {
         <div className="flex py-3 pb-[14px] items-center justify-between self-stretch border-b-2 border-[#e2e8f0] relative">
           {/* Titulo */}
           <div className="text-[#020817] font-exo text-2xl font-bold leading-8 flex pl-5 flex-col items-start border-l-4 border-[#00d17d]">
-            Clientes
+            Brinquedos
           </div>
 
           {/* Add Cliente */}
@@ -109,7 +109,7 @@ export default function Clientes() {
 
               {/* Desktop: nome completo */}
               <span className="hidden md:block">
-                Adicionar cliente
+                Adicionar brinquedo
               </span>
                 
             </span>
@@ -121,7 +121,7 @@ export default function Clientes() {
 
           {/* Search Bar */}
           <div className="flex items-center border border-blue-border rounded-2xl px-1 w-full md:w-auto md:ml-auto">
-            <input type="text" placeholder="Pesquisar por Nome ou Documento" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="flex-1 md:w-80 px-4 py-2 text-gray-placeholder font-light text-base bg-transparent outline-none" />
+            <input type="text" placeholder="Pesquisar por Nome" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="flex-1 md:w-80 px-4 py-2 text-gray-placeholder font-light text-base bg-transparent outline-none" />
             <svg
               className="w-4 h-4 opacity-30"
               viewBox="0 0 17 17"
@@ -144,10 +144,10 @@ export default function Clientes() {
                     Nome
                   </th>
                   <th className="text-left py-3 px-6 text-gray-text font-bold text-sm leading-5 tracking-wider uppercase">
-                    Documento
+                    Valor
                   </th>
                   <th className="text-left py-3 px-6 text-gray-text font-bold text-sm leading-5 tracking-wider uppercase">
-                    Telefone
+                    Quantidade disponível
                   </th>
                   <th className="text-left py-3 px-6 text-gray-text font-bold text-sm leading-5 tracking-wider uppercase">
                     Status
@@ -260,7 +260,7 @@ export default function Clientes() {
                   <td colSpan={3}>
                     <div className="flex py-[52px] pb-7 flex-col items-center justify-center self-stretch">
                       <div className="flex-1 text-[#a1a1aa] text-center font-exo text-xl font-bold leading-7 flex justify-center items-center self-stretch">
-                        Nenhum cliente cadastrado...
+                        Nenhum brinquedo cadastrado...
                       </div>
                     </div>
                   </td>

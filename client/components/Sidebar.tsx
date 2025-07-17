@@ -4,6 +4,7 @@ import { Menu as MenuIcon } from "lucide-react";
 import { RiHomeSmile2Line } from "react-icons/ri";
 import { LuUsers } from "react-icons/lu";
 import { TbCake } from "react-icons/tb";
+import { TbHorseToy } from "react-icons/tb";
 import logo from '../assets/logo_happy_kids.png';
 
 export function Sidebar() {
@@ -14,7 +15,8 @@ export function Sidebar() {
   const menuItems = [
     { path: "/", icon: "home", label: "Home" },
     { path: "/clientes", icon: "users", label: "Clientes" },
-    { path: "/festas", icon: "paries", label: "Festas"}
+    { path: "/festas", icon: "paries", label: "Festas"},
+    { path: "/brinquedos", icon: "toys", label: "Brinquedos" }
   ];
 
   const getIcon = (iconName: string, isActive: boolean) => {
@@ -31,6 +33,10 @@ export function Sidebar() {
         case "paries":
           return (
             <TbCake style={{ color: strokeColor, width: 27, height: 30 }}/>
+          )
+        case "toys":
+          return (
+            <TbHorseToy style={{ color: strokeColor, width: 27, height: 30 }} />
           )
         default:
           return null;
