@@ -5,6 +5,8 @@ import { RiHomeSmile2Line } from "react-icons/ri";
 import { LuUsers } from "react-icons/lu";
 import { TbCake } from "react-icons/tb";
 import { TbHorseToy } from "react-icons/tb";
+import { TbCashRegister } from "react-icons/tb";
+import { LuLayoutDashboard } from "react-icons/lu";
 import logo from '../assets/logo_happy_kids.png';
 
 export function Sidebar() {
@@ -16,11 +18,13 @@ export function Sidebar() {
     { path: "/", icon: "home", label: "Home" },
     { path: "/clientes", icon: "users", label: "Clientes" },
     { path: "/festas", icon: "paries", label: "Festas"},
-    { path: "/brinquedos", icon: "toys", label: "Brinquedos" }
+    { path: "/brinquedos", icon: "toys", label: "Brinquedos" },
+    { path: "/transacoes", icon: "transactions", label: "Transações"},
+    { path: "/dashboard", icon: "dasboard", label: "Dasboard"},
   ];
 
   const getIcon = (iconName: string, isActive: boolean) => {
-    const strokeColor = isActive ? "#94E5CE" : "white";
+    const strokeColor = isActive ? "#00d17d" : "white";
       switch (iconName) {
         case "users":
           return (
@@ -37,6 +41,14 @@ export function Sidebar() {
         case "toys":
           return (
             <TbHorseToy style={{ color: strokeColor, width: 27, height: 30 }} />
+          )
+        case "transactions":
+          return (
+            <TbCashRegister style={{ color: strokeColor, width: 27, height: 30 }} />
+          )
+        case "dasboard":
+          return (
+            <LuLayoutDashboard style={{ color: strokeColor, width: 26, height: 30 }} />
           )
         default:
           return null;
@@ -58,10 +70,10 @@ export function Sidebar() {
   return (
     <div>
       {/* Topbar mobile */}
-      <div className="flex md:hidden fixed top-0 left-0 right-0 h-14 bg-blue-600 flex items-center px-4 shadow z-40">
+      <div className="flex md:hidden fixed top-0 left-0 right-0 h-14 bg-black flex items-center px-4 shadow z-40">
         <button
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="p-1 text-white hover:bg-blue-700 rounded-lg transition-colors w-8 h-8 flex items-center justify-center"
+          className="p-1 text-white hover:bg-gray-800 rounded-lg transition-colors w-8 h-8 flex items-center justify-center"
         >
           <MenuIcon className="w-6 h-6" />
         </button>
@@ -71,11 +83,11 @@ export function Sidebar() {
       {/* Sidebar mobile */}
       <div
         id="sidebar"
-        className={`md:hidden fixed top-0 left-0 h-screen w-[240px] bg-blue-600 shadow transition-transform duration-300 z-50 ${
+        className={`md:hidden fixed top-0 left-0 h-screen w-[240px] bg-black shadow transition-transform duration-300 z-50 ${
           isMobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-          <div className={`flex flex-col items-start min-h-screen bg-blue-600 shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.10),0px_4px_6px_-4px_rgba(0,0,0,0.10)] transition-all duration-300 w-[240px]`}>
+          <div className={`flex flex-col items-start min-h-screen bg-black shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.10),0px_4px_6px_-4px_rgba(0,0,0,0.10)] transition-all duration-300 w-[240px]`}>
           <div className="flex flex-col items-start gap-2 self-stretch">
             {/* Header */}
             <div className="flex pt-[30px] pb-3 flex-col items-start self-stretch">
@@ -118,7 +130,7 @@ export function Sidebar() {
                       >
                         <Link
                           to={item.path}
-                          className={`flex items-center hover:bg-blue-700 rounded-xl transition-colors py-3 px-4 gap-3 w-full ${isActive ? "bg-blue-700" : ""}`}title={item.label}
+                          className={`flex items-center hover:bg-gray-800 rounded-xl transition-colors py-3 px-4 gap-3 w-full ${isActive ? "bg-gray-800" : ""}`}title={item.label}
                         >
                           {getIcon(item.icon, isActive)}
                           <span className="text-white font-medium text-sm">{item.label}</span>
@@ -136,7 +148,7 @@ export function Sidebar() {
                 className={`flex px-5 ml-10 w-full items-start`}
               >
                 <button
-                  className={`flex items-center hover:bg-blue-700 rounded-xl transition-colors py-3 px-4 gap-3 w-full"}`}title={"Sair"}
+                  className={`flex items-center hover:bg-gray-800 rounded-xl transition-colors py-3 px-4 gap-3 w-full"}`}title={"Sair"}
                 >
                   <svg
                     width="29"
@@ -178,11 +190,11 @@ export function Sidebar() {
 
       {/* Sidebar desktop */}
       <div
-        className={`hidden md:flex flex-col items-start min-h-screen bg-blue-600 shadow transition-all duration-300 ${
+        className={`hidden md:flex flex-col items-start min-h-screen bg-gray-800 shadow transition-all duration-300 ${
           isExpanded ? "w-[240px]" : "w-[56px]"
         }`}
       >
-        <div className={`flex flex-col items-start min-h-screen bg-blue-600 shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.10),0px_4px_6px_-4px_rgba(0,0,0,0.10)] transition-all duration-300 ${isExpanded ? "w-[240px]" : "w-[56px]"}`}>
+        <div className={`flex flex-col items-start min-h-screen bg-black shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.10),0px_4px_6px_-4px_rgba(0,0,0,0.10)] transition-all duration-300 ${isExpanded ? "w-[240px]" : "w-[56px]"}`}>
           <div className="flex flex-col items-start gap-2 self-stretch">
             {/* Header */}
             <div className="flex pt-[30px] pb-3 flex-col items-start self-stretch">
@@ -208,7 +220,7 @@ export function Sidebar() {
                   </div>
                   <button
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="p-2 text-white hover:bg-blue-700 rounded-lg transition-colors"
+                    className="p-2 text-white hover:bg-gray-800 rounded-lg transition-colors"
                     title="Colapsar menu"
                   >
                     <svg
@@ -237,7 +249,7 @@ export function Sidebar() {
                   </div>
                   <button
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="p-1 text-white hover:bg-blue-700 rounded-lg transition-colors w-8 h-8 flex items-center justify-center"
+                      className="p-1 text-white hover:bg-gray-800 rounded-lg transition-colors w-8 h-8 flex items-center justify-center"
                     title="Expandir menu"
                   >
                     <svg
@@ -276,11 +288,11 @@ export function Sidebar() {
                       >
                         <Link
                           to={item.path}
-                          className={`flex items-center hover:bg-blue-700 rounded-xl transition-colors ${
+                          className={`flex items-center hover:bg-gray-800 rounded-xl transition-colors ${
                             isExpanded
                               ? "py-3 px-4 gap-3 w-full"
                               : "py-2 px-[10px] flex-1"
-                          } ${isActive ? "bg-blue-700" : ""}`}
+                            } ${isActive ? "bg-gray-800" : ""}`}
                           title={!isExpanded ? item.label : undefined}
                         >
                           {getIcon(item.icon, isActive)}
@@ -303,7 +315,7 @@ export function Sidebar() {
                 className={`flex ${isExpanded ? "px-5 ml-8 w-full" : "pl-[6px] pr-[13.5px] justify-center"} items-start`}
               >
                 <button 
-                  className={`flex items-center hover:bg-blue-700 rounded-xl transition-colors ${
+                  className={`flex items-center hover:bg-gray-800 rounded-xl transition-colors ${
                     isExpanded ? "py-3 px-4 gap-3 w-full" : "p-2"
                   }`}
                   title={!isExpanded ? "Sair" : undefined}

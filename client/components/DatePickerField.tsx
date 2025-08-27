@@ -7,9 +7,10 @@ interface DatePickerFieldProps {
   label?: string;
   selectedDate: string;
   onChange: (value: string) => void;
+  position?: 'left' | 'right';
 }
 
-export function DatePickerField({ label, selectedDate, onChange }: DatePickerFieldProps) {
+export function DatePickerField({ label, selectedDate, onChange, position }: DatePickerFieldProps) {
   const [open, setOpen] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
 
@@ -52,7 +53,7 @@ export function DatePickerField({ label, selectedDate, onChange }: DatePickerFie
       </button>
 
       {open && (
-        <div className="absolute z-10 mt-2 bg-white border border-gray-300 rounded-md shadow-lg">
+        <div className={`${position === 'left' ? 'lg:right-0' : ''} absolute z-10 mt-2 bg-white border border-gray-300 rounded-md shadow-lg`}>
           <Calendar
             mode="single"
             selected={new Date(selectedDate + "T00:00:00")}

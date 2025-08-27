@@ -1,6 +1,6 @@
-interface StatCardProps {
+export interface StatCardProps {
   title: string;
-  value: string;
+  value: React.ReactNode;
   icon: React.ReactNode;
   borderColor: string;
   trend?: {
