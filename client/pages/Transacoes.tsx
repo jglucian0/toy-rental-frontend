@@ -314,7 +314,7 @@ export default function Transacoes() {
       title: "Entradas Planejadas",
       value: formatMoneyLocal(entradaPlanejada),
       icon: <Icons.ArrowUpIcon />,
-      borderColor: "border-l-[#22d3ee]",
+      borderColor: "border-l-[#fb923c]",
     },
     {
       title: "Entradas no Caixa",
@@ -326,7 +326,7 @@ export default function Transacoes() {
       title: "Saídas Pagas",
       value: formatMoneyLocal(saidaAtual),
       icon: <Icons.ArrowDownIcon />,
-      borderColor: "border-l-[#f97316]",
+      borderColor: "border-l-[#22d3ee]",
     },
     {
       title: "Saídas Planejadas",
@@ -454,87 +454,99 @@ export default function Transacoes() {
                 </tr>
               </thead>
               <tbody>
-                {filteredTransacoes.map((transacao, index) => (
-                  <tr key={transacao.id} className={index > 0 ? "border-t" : ""}>
-                    {/* Ícone de entrada ou saída */}
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-3">
-                        {transacao.tipo === "entrada" ? (
-                          <Icons.ArrowUpIcon />
+                {filteredTransacoes.length > 0 ? (
+                  filteredTransacoes.map((transacao, index) => (
+                    <tr key={transacao.id} className={index > 0 ? "border-t" : ""}>
+                      {/* Ícone de entrada ou saída */}
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-3">
+                          {transacao.tipo === "entrada" ? (
+                            <Icons.ArrowUpIcon />
+                          ) : (
+                            <Icons.ArrowDownIcon className="text-[#EF4444]" />
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Tipo de transação */}
+                      <td className="whitespace-nowrap py-4 px-6">{transacao.tipo_display || "Carregando..."}</td>
+
+                      {/* Status do pagamento */}
+                      <td className={"whitespace-nowrap py-4 px-6"}
+                      >
+                        <div className={`py-2 px-6 whitespace-nowrap px-2 sm:px-3 sm:py-2 rounded-full text-xs sm:text-sm flex items-center gap-1 ${statusColors(
+                          transacao.pagamento
+                        )}`}>
+                          {transacao.pagamento_display || "Carregando..."}
+
+                        </div>
+                      </td>
+
+                      {/* Cliente */}
+                      <td className="py-4 px-6 whitespace-nowrap">
+                        {transacao.origem === "locacao" ? (
+                          clientes[transacao.cliente]?.nome
+                            ? `Festa de ${clientes[transacao.cliente].nome}`
+                            : "Carregando..."
+                        ) : transacao.origem === "investimento_brinquedo" ? (
+                          `${transacao.brinquedo?.nome || ""}`
                         ) : (
-                          <Icons.ArrowDownIcon className="text-[#EF4444]" />
+                          "Sem referência"
                         )}
-                      </div>
-                    </td>
-
-                    {/* Tipo de transação */}
-                    <td className="whitespace-nowrap py-4 px-6">{transacao.tipo_display || "Carregando..."}</td>
-
-                    {/* Status do pagamento */}
-                    <td className={"whitespace-nowrap py-4 px-6"}
-                    >
-                      <div className={`py-2 px-6 whitespace-nowrap px-2 sm:px-3 sm:py-2 rounded-full text-xs sm:text-sm flex items-center gap-1 ${statusColors(
-                        transacao.pagamento
-                      )}`}>
-                        {transacao.pagamento_display || "Carregando..."}
-
-                      </div>
-                    </td>
-
-                    {/* Cliente */}
-                    <td className="py-4 px-6 whitespace-nowrap">
-                      {transacao.origem === "locacao" ? (
-                        clientes[transacao.cliente]?.nome
-                          ? `Festa de ${clientes[transacao.cliente].nome}`
-                          : "Carregando..."
-                      ) : transacao.origem === "investimento_brinquedo" ? (
-                        `${transacao.brinquedo?.nome || ""}`
-                      ) : (
-                        "Sem referência"
-                      )}
-                    </td>
+                      </td>
 
 
-                    {/* Valor */}
-                    <td
-                      className={`py-4 px-6 whitespace-nowrap ${transacao.tipo === "entrada" ? "text-[#166534]" : "text-[#EF4444]"
-                        }`}
-                    >
-                      {transacao.tipo === "entrada" ? <span className="mr-2">+</span> : <span className="mr-2">-</span>}
-                      {formatMoneyLocal(valorProporcional(transacao)) || "Carregando..."}
-                    </td>
+                      {/* Valor */}
+                      <td
+                        className={`py-4 px-6 whitespace-nowrap ${transacao.tipo === "entrada" ? "text-[#166534]" : "text-[#EF4444]"
+                          }`}
+                      >
+                        {transacao.tipo === "entrada" ? <span className="mr-2">+</span> : <span className="mr-2">-</span>}
+                        {formatMoneyLocal(valorProporcional(transacao)) || "Carregando..."}
+                      </td>
 
-                    {/* Data de pagamento */}
-                    <td className="py-4 px-6 whitespace-nowrap">{formatDateToDayAndMonth(transacao.data_transacao)}</td>
+                      {/* Data de pagamento */}
+                      <td className="py-4 px-6 whitespace-nowrap">{formatDateToDayAndMonth(transacao.data_transacao)}</td>
 
-                    {/* Data de vencimento */}
-                    <td className="py-4 px-6 whitespace-nowrap">{formatDateToDayAndMonth(transacao.data_transacao)}</td>
+                      {/* Data de vencimento */}
+                      <td className="py-4 px-6 whitespace-nowrap">{formatDateToDayAndMonth(transacao.data_transacao)}</td>
 
-                    {/* Categoria */}
-                    <td className="py-4 px-6 whitespace-nowrap">{transacao.categoria_display || "Carregando..."}</td>
+                      {/* Categoria */}
+                      <td className="py-4 px-6 whitespace-nowrap">{transacao.categoria_display || "Carregando..."}</td>
 
-                    {/* Parcelamento */}
-                    <td className="py-4 px-6 whitespace-nowrap">
-                      {transacao.parcela_atual && transacao.qtd_parcelas
-                        ? `${transacao.parcela_atual}/${transacao.qtd_parcelas}`
-                        : "À vista"}
-                    </td>
+                      {/* Parcelamento */}
+                      <td className="py-4 px-6 whitespace-nowrap">
+                        {transacao.parcela_atual && transacao.qtd_parcelas
+                          ? `${transacao.parcela_atual}/${transacao.qtd_parcelas}`
+                          : "À vista"}
+                      </td>
 
-                    {/* Ações: excluir e editar */}
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-3">
-                        <ExcluirTransacao
-                          key={transacao.id}
-                          object={transacao.id}
-                          onConfirm={() => handleDelete(transacao.id)}
-                        />
-                        <Link to={`/transacoes/editar/${transacao.id}`} title="Editar">
-                          <Icons.EditIcon />
-                        </Link>
+                      {/* Ações: excluir e editar */}
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-3">
+                          <ExcluirTransacao
+                            key={transacao.id}
+                            object={transacao.id}
+                            onConfirm={() => handleDelete(transacao.id)}
+                          />
+                          <Link to={`/transacoes/editar/${transacao.id}`} title="Editar">
+                            <Icons.EditIcon />
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={9}>
+                      <div className="flex py-[52px] pb-7 flex-col items-center justify-center self-stretch">
+                        <div className="text-[#a1a1aa] text-center font-exo text-xl font-bold leading-7">
+                          Nenhuma transação para exibir neste período...
+                        </div>
                       </div>
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

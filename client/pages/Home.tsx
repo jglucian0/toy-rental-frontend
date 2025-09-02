@@ -306,8 +306,8 @@ export default function Home() {
   // Formata a data do formato YYYY-MM-DD para DD/MM para exibição
   const formatDisplayDate = (dateString: string) => {
     const date = new Date(dateString);
-    const day = (date.getDate() + 1).toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getUTCDate().toString().padStart(2, "0");
+    const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
     return `${day}/${month}`;
   };
 
@@ -396,7 +396,7 @@ export default function Home() {
       value: monthlyParties.length.toString(),
       icon: <Icons.PartyIcon />,
 
-      borderColor: "border-l-[#22d3ee]",
+      borderColor: "border-l-[#facc15]",
       trend: {
         icon: TrendIcon(festaVariation),
         value: <span className={variationColor}>{formattedVariation}</span>,
@@ -411,7 +411,7 @@ export default function Home() {
         </span>
       ),
       icon: <Icons.MoneyIcon />,
-      borderColor: "border-l-[#facc15]",
+      borderColor: "border-l-[#22d3ee]",
       trend: {
         icon: TrendIcon(festaVariation),
         value: <span className={variationColor}>{formattedVariation}</span>,
@@ -718,7 +718,7 @@ export default function Home() {
           ) : (
             <div className="flex py-[52px] pb-7 flex-col items-start self-stretch">
               <div className="flex-1 text-[#a1a1aa] text-center font-exo text-xl font-bold leading-7 flex justify-center items-center self-stretch">
-                Nenhuma festa agendada na data selecionada.
+                Nenhuma festa agendada na data selecionada...
               </div>
             </div>
           )}

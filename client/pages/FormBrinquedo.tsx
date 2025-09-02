@@ -78,15 +78,21 @@ export default function FormCliente() {
 
   const brinquedoPayload = {
     ...brinquedo,
-    valor_diaria: brinquedo.valor_diaria ? Number(brinquedo.valor_diaria) / 100 : null,
-    valor_compra: brinquedo.valor_compra ? Number(brinquedo.valor_compra) / 100 : null,
+    valor_diaria: brinquedo.valor_diaria
+      ? (Number(brinquedo.valor_diaria) / 100).toFixed(2)
+      : null,
+    valor_compra: brinquedo.valor_compra
+      ? (Number(brinquedo.valor_compra) / 100).toFixed(2)
+      : null,
     qtd_total: brinquedo.qtd_total ? Number(brinquedo.qtd_total) : null,
     qtd_disponivel: brinquedo.qtd_disponivel ? Number(brinquedo.qtd_disponivel) : null,
-    qtd_parcelas: brinquedo.parcelado === "sim" ? Number(brinquedo.qtd_parcelas) : 1,
-    energia: brinquedo.energia || null,
-    voltagem: brinquedo.voltagem || null,
-    inflavel: brinquedo.inflavel || null,
-    descricao: brinquedo.descricao || null,
+    qtd_parcelas: brinquedo.parcelado === "sim" && brinquedo.qtd_parcelas
+      ? Number(brinquedo.qtd_parcelas)
+      : null,
+    energia: brinquedo.energia || "",
+    voltagem: brinquedo.energia === "sim" ? (brinquedo.voltagem || "") : "",
+    inflavel: brinquedo.inflavel || "",
+    descricao: brinquedo.descricao || "",
     data_aquisicao: brinquedo.data_aquisicao || null,
     data_vencimento: brinquedo.data_vencimento || null,
   };
@@ -99,8 +105,17 @@ export default function FormCliente() {
     const url = isEditando ? `brinquedos/${id}/` : "brinquedos/";
     const metodo = isEditando ? "put" : "post";
 
+    // Pega o organization_id do storage
+    const organizationId = localStorage.getItem("organization_id");
+
+    // Inclui a organização no payload correto
+    const brinquedoPayloadComOrg = {
+      ...brinquedoPayload,
+      organization: organizationId,
+    };
+    
     try {
-      await api[metodo](url, brinquedoPayload);
+      await api[metodo](url, brinquedoPayloadComOrg);
       toast.success(
         `Brinquedo ${isEditando ? "atualizado" : "cadastrado"} com sucesso!`,
         { id: "alert" }

@@ -487,6 +487,7 @@ export default function FormFesta() {
   const handleSubmit = async () => {
     // Validação de campos obrigatórios
     const novosErros: { [key: string]: string } = {};
+    
 
 
     // Verifica todos os campos obrigatórios
@@ -554,12 +555,17 @@ export default function FormFesta() {
 
       // Redireciona para a lista de festas após sucesso
       navigate("/festas");
-    } catch (e) {
-      // Trata erro de validação ou conexão
-      toast.error("Erro ao salvar a festa. Verifique os campos e tente novamente.", {
-        id: "alert",
-      });
+    } catch (error: any) {
+      if (error.response?.data) {
+        const [campo] = Object.entries(error.response.data)[0];
+        const mensagemErro = `O "${campo}" não pode ficar em branco!`;
+        toast.error(mensagemErro, { id: "alert" });
+      } else {
+        toast.error("Erro de conexão com o servidor.", { id: "alert" });
+      }
     }
+
+
   };
 
 

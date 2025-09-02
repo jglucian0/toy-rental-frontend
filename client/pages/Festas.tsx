@@ -68,12 +68,12 @@ function PagamentoDropdown({ festa, pagamentoOptions, updatePagamento, pagamento
                           >
                             <span
                               className={`flex font-medium ${option.value === "nao_pago"
-                                  ? "text-[#854d0e]"
-                                  : option.value === "entrada"
-                                    ? "text-[#1e40af]"
-                                    : option.value === "pago"
-                                      ? "text-[#166534]"
-                                      : "text-gray-600"
+                                ? "text-[#854d0e]"
+                                : option.value === "entrada"
+                                  ? "text-[#1e40af]"
+                                  : option.value === "pago"
+                                    ? "text-[#166534]"
+                                    : "text-gray-600"
                                 }`}
                             >
                               {option.label}
@@ -158,16 +158,16 @@ function StatusDropdown({ festa, statusOptions, updateStatus }: any) {
                           >
                             <span
                               className={`flex font-medium ${option.value === "pendente"
-                                  ? "text-[#854d0e]"
-                                  : option.value === "confirmado"
-                                    ? "text-[#166534]"
-                                    : option.value === "finalizado"
-                                      ? "text-[#6b21a8]"
-                                      : option.value === "montado"
-                                        ? "text-[#1e40af]"
-                                        : option.value === "recolher"
-                                          ? "text-[#a75e0b]"
-                                          : "text-gray-600"
+                                ? "text-[#854d0e]"
+                                : option.value === "confirmado"
+                                  ? "text-[#166534]"
+                                  : option.value === "finalizado"
+                                    ? "text-[#6b21a8]"
+                                    : option.value === "montado"
+                                      ? "text-[#1e40af]"
+                                      : option.value === "recolher"
+                                        ? "text-[#a75e0b]"
+                                        : "text-gray-600"
                                 }`}
                             >
                               {option.label}
@@ -537,72 +537,84 @@ export default function Festas() {
                 </tr>
               </thead>
               <tbody>
-                {filteredFestas.map((festa, index) => {
-                  // Obtem o status da festa (ajuste se necessário)
-                  const status = festa.status; // ou partyStatuses[festa.id] se for outro lugar
-                  const selected = statusOptions.find(s => s.value === status);
+                {filteredFestas.length > 0 ? (
+                  filteredFestas.map((festa, index) => {
+                    // Obtem o status da festa (ajuste se necessário)
+                    const status = festa.status; // ou partyStatuses[festa.id] se for outro lugar
+                    const selected = statusOptions.find(s => s.value === status);
 
-                  // Se usar chaves {}, precisa do return:
-                  return (
-                    <tr key={festa.id} className={index > 0 ? "border-t" : ""}>
-                      <td className="whitespace-nowrap py-4 px-6">{clientes[festa.cliente]?.nome || "Carregando..."}</td>
+                    // Se usar chaves {}, precisa do return:
+                    return (
+                      <tr key={festa.id} className={index > 0 ? "border-t" : ""}>
+                        <td className="whitespace-nowrap py-4 px-6">{clientes[festa.cliente]?.nome || "Carregando..."}</td>
 
-                      <td className="py-4 px-6 whitespace-nowrap">
-                        {formatDateToDayAndMonth(festa.data_festa) || "Carregando..."} à {formatDateToDayAndMonth(festa.data_desmontagem) || "Carregando..."}
-                      </td>
-                      <PagamentoDropdown
-                        festa={festa}
-                        pagamentoOptions={pagamentoOptions}
-                        updatePagamento={updatePagamento}
-                        pagamentoLabelMap={pagamentoLabelMap}
-                      />
-                      <td className="py-4 px-6 whitespace-nowrap">
-                        {formatMoney(festa.valor_total) || "Carregando..."}
+                        <td className="py-4 px-6 whitespace-nowrap">
+                          {formatDateToDayAndMonth(festa.data_festa) || "Carregando..."} à {formatDateToDayAndMonth(festa.data_desmontagem) || "Carregando..."}
+                        </td>
+                        <PagamentoDropdown
+                          festa={festa}
+                          pagamentoOptions={pagamentoOptions}
+                          updatePagamento={updatePagamento}
+                          pagamentoLabelMap={pagamentoLabelMap}
+                        />
+                        <td className="py-4 px-6 whitespace-nowrap">
+                          {formatMoney(festa.valor_total) || "Carregando..."}
 
-                      </td>
+                        </td>
 
-                      <StatusDropdown
-                        festa={festa}
-                        statusOptions={statusOptions}
-                        updateStatus={updateStatus}
-                      />
+                        <StatusDropdown
+                          festa={festa}
+                          statusOptions={statusOptions}
+                          updateStatus={updateStatus}
+                        />
 
-                      <td className="py-4 px-6 whitespace-nowrap flex flex-col">
-                        {festa.brinquedos.map((b: any, i: number) => (
-                          <div key={i}>{b.nome}</div>
-                        ))}
-                      </td>
+                        <td className="py-4 px-6 whitespace-nowrap flex flex-col">
+                          {festa.brinquedos.map((b: any, i: number) => (
+                            <div key={i}>{b.nome}</div>
+                          ))}
+                        </td>
 
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-3">
-                          <ModalWhatsApp
-                            festa={{
-                              id: festa.id,
-                              data_festa: festa.data_festa,
-                              hora_montagem: festa.hora_montagem,
-                              clienteId: festa.cliente
-                            }}
-                            cliente={{
-                              id: festa.cliente,
-                              nome: clientes[festa.cliente]?.nome || "",
-                              telefone: clientes[festa.cliente]?.telefone || ""
-                            }}
-                          />
-                          <AnexarContrato
-                            festaId={festa.id}
-                            cliente={festa.cliente}
-                            contratoPreenchido={ContratoPreenchido}
-                          />
-                          <ExcluirFesta cliente={clientes[festa.cliente]?.nome} onConfirm={() => handleDelete(festa.id)} />
-                          <Link to={`/festas/editar/${festa.id}`} title="Editar">
-                            <Icons.EditIcon />
-                          </Link>
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-3">
+                            <ModalWhatsApp
+                              festa={{
+                                id: festa.id,
+                                data_festa: festa.data_festa,
+                                hora_montagem: festa.hora_montagem,
+                                clienteId: festa.cliente
+                              }}
+                              cliente={{
+                                id: festa.cliente,
+                                nome: clientes[festa.cliente]?.nome || "",
+                                telefone: clientes[festa.cliente]?.telefone || ""
+                              }}
+                            />
+                            <AnexarContrato
+                              festaId={festa.id}
+                              cliente={festa.cliente}
+                              contratoPreenchido={ContratoPreenchido}
+                            />
+                            <ExcluirFesta cliente={clientes[festa.cliente]?.nome} onConfirm={() => handleDelete(festa.id)} />
+                            <Link to={`/festas/editar/${festa.id}`} title="Editar">
+                              <Icons.EditIcon />
+                            </Link>
 
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={6}>
+                      <div className="flex py-[52px] pb-7 flex-col items-center justify-center self-stretch">
+                        <div className="text-[#a1a1aa] text-center font-exo text-xl font-bold leading-7">
+                          Nenhuma festa para exibir neste período...
                         </div>
-                      </td>
-                    </tr>
-                  );
-                })}
+                      </div>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

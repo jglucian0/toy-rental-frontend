@@ -16,6 +16,9 @@ import FormFesta from "./pages/FormFesta";
 import Home from "./pages/Home";
 import Transacoes from './pages/Transacoes'
 import FormTransacoes from './pages/FormTransacoes'
+import Dashboard from './pages/Dashboard'
+import Login from './pages/Login'
+import PrivateRoute from "./auth/PrivateRoute";
 
 const queryClient = new QueryClient();
 
@@ -25,13 +28,18 @@ const App = () => (
       <Sonner position="top-center" richColors />
       <BrowserRouter>
         <Routes>
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          {/* Página pública */}
+          <Route path="/login" element={<Login />} />
           <Route path="*" element={<NotFound />} />
-          <Route path="/" element={<Home />} />
-          <Route path="/clientes" element={<Clientes />} />
-          <Route path="/clientes/novo" element={<FormCliente />} />
-          <Route path="/clientes/editar/:id" element={<FormCliente />} />
-          <Route path="/festas" element={<Festas />} />
+
+          {/* Rotas privadas */}
+          <Route element={<PrivateRoute />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/clientes" element={<Clientes />} />
+            <Route path="/clientes/novo" element={<FormCliente />} />
+            <Route path="/clientes/editar/:id" element={<FormCliente />} />
+            <Route path="/festas" element={<Festas />} />
+          </Route>
           <Route path="/festas/nova" element={<FormFesta />} />
           <Route path="/festas/editar/:id" element={<FormFesta />} />
           <Route path="/brinquedos" element={<Brinquedos />} />
@@ -40,6 +48,7 @@ const App = () => (
           <Route path="/transacoes" element={<Transacoes />} />
           <Route path="/transacoes/nova" element={<FormTransacoes />} />
           <Route path="/transacoes/editar/:id" element={<FormTransacoes />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

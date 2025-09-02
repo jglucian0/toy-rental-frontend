@@ -56,8 +56,14 @@ export default function FormCliente() {
     const url = isEditando ? `clientes/${id}/` : "clientes/";
     const metodo = isEditando ? "put" : "post";
 
+    // Pega o organization_id do storage
+    const organizationId = localStorage.getItem("organization_id");
+
+    // Inclui a organização no payload
+    const payload = { ...cliente, organization: organizationId };
+
     try {
-      await api[metodo](url, cliente);
+      await api[metodo](url, payload);
       toast.success(`Cliente ${isEditando ? "atualizado" : "cadastrado"} com sucesso!`, { id: "alert" });
       navigate("/clientes");
     } catch (error: any) {
