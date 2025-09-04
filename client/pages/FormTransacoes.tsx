@@ -238,7 +238,7 @@ export default function FormTransacao() {
       // Atualiza ou cria a transação dependendo do modo (edição ou criação)
       if (isEditando) {
         if (transacao.locacao) {
-          await api.patch(`/locacoes/${transacao.locacao}/`, { pagamento: transacao.pagamento });
+          await api.patch(`/locacoes/${transacao.locacao}/`, payload);
         }
         await api.put(`/transacoes/${id}/`, payload);
         toast.success("Transação atualizada com sucesso", {
