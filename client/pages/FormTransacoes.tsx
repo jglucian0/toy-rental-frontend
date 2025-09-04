@@ -212,25 +212,27 @@ export default function FormTransacao() {
       : new Date().toISOString().split("T")[0];
 
     const payload = {
-      ...transacao,
-      origem: transacao.origem || "manual",
-      valor: Number(transacao.valor),
-      qtd_parcelas:
-        transacao.parcelado === "sim" && transacao.qtd_parcelas > 0
-          ? Number(transacao.qtd_parcelas)
-          : null,
-      parcela_atual: null,
       data_transacao: dataTransacaoISO,
       data_vencimento: transacao.parcelado === "sim"
         ? (transacao.data_vencimento
           ? new Date(transacao.data_vencimento).toISOString().split("T")[0]
           : dataTransacaoISO)
         : null,
-      tipo: transacao.tipo || "entrada",
-      categoria: transacao.categoria || "aluguel",
-      pagamento: transacao.pagamento || "nao_pago",
+      tipo: transacao.tipo,
+      valor: Number(transacao.valor),
+      categoria: transacao.categoria,
+      pagamento: transacao.pagamento,
+      descricao: transacao.descricao,
+      origem: transacao.origem || "manual",
+      referencia_id: transacao.referencia_id || null, // Mantenha os campos que podem ser atualizados
+      parcelado: transacao.parcelado,
+      qtd_parcelas:
+        transacao.parcelado === "sim" && transacao.qtd_parcelas > 0
+          ? Number(transacao.qtd_parcelas)
+          : null,
+      // parcela_atual: transacao.parcela_atual, // Você precisa decidir se este campo deve ser enviado
     };
-    console.log("Payload enviado:", payload)
+    
 
     try {
       // Atualiza ou cria a transação dependendo do modo (edição ou criação)
@@ -238,10 +240,7 @@ export default function FormTransacao() {
         if (transacao.locacao) {
           await api.patch(`/locacoes/${transacao.locacao}/`, { pagamento: transacao.pagamento });
         }
-
         await api.put(`/transacoes/${id}/`, payload);
-
-        
         toast.success("Transação atualizada com sucesso", {
           id: "alert",
         });
@@ -256,6 +255,7 @@ export default function FormTransacao() {
       navigate("/transacoes");
     } catch (e) {
       // Trata erro de validação ou conexão
+      console.error("Erro ao salvar:", e.response.data);
       toast.error("Erro ao salvar a transação. Verifique os campos e tente novamente.", {
         id: "alert",
       });
@@ -375,7 +375,7 @@ export default function FormTransacao() {
                         ))}
                       </select>
                     </div>
-                  
+
                     <div>
                       <label className="block text-base text-slate-400 mb-1">Parcelado?</label>
                       <select
