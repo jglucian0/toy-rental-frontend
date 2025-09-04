@@ -67,7 +67,7 @@ export default function FormTransacao() {
     if (isEditando) {
       carregarTransacaoExistente(id);
     }
-  }, []);
+  }, [id]);
 
   // Atualiza o input formatado quando o valor de entrada muda
   useEffect(() => {
@@ -211,12 +211,16 @@ export default function FormTransacao() {
       ? new Date(transacao.data_transacao).toISOString().split("T")[0]
       : new Date().toISOString().split("T")[0];
 
+    const organizationId = localStorage.getItem("organization_id");
+    if (!organizationId) {
+      toast.error("Erro crítico: ID da organização não encontrado. Faça login novamente.");
+      return;
+    }
+
     const payload = {
       data_transacao: dataTransacaoISO,
       data_vencimento: transacao.parcelado === "sim"
-        ? (transacao.data_vencimento
-          ? new Date(transacao.data_vencimento).toISOString().split("T")[0]
-          : dataTransacaoISO)
+        ? (transacao.data_vencimento ? new Date(transacao.data_vencimento).toISOString().split("T")[0] : dataTransacaoISO)
         : null,
       tipo: transacao.tipo,
       valor: Number(transacao.valor),
@@ -224,41 +228,37 @@ export default function FormTransacao() {
       pagamento: transacao.pagamento,
       descricao: transacao.descricao,
       origem: transacao.origem || "manual",
-      referencia_id: transacao.referencia_id || null, // Mantenha os campos que podem ser atualizados
+      referencia_id: transacao.referencia_id || null,
       parcelado: transacao.parcelado,
-      qtd_parcelas:
-        transacao.parcelado === "sim" && transacao.qtd_parcelas > 0
-          ? Number(transacao.qtd_parcelas)
-          : null,
-      // parcela_atual: transacao.parcela_atual, // Você precisa decidir se este campo deve ser enviado
+      qtd_parcelas: transacao.parcelado === "sim" && transacao.qtd_parcelas > 0 ? Number(transacao.qtd_parcelas) : null,
+      parcela_atual: transacao.parcela_atual, // <-- MUDANÇA: Incluído para garantir que seja enviado na edição
+      organization: organizationId, // <-- MUDANÇA: Sua correção, agora integrada
     };
-    
+
 
     try {
-      // Atualiza ou cria a transação dependendo do modo (edição ou criação)
       if (isEditando) {
         if (transacao.locacao) {
           await api.patch(`/locacoes/${transacao.locacao}/`, { pagamento: transacao.pagamento });
         }
-        await api.put(`/transacoes/${id}/`, payload);
-        toast.success("Transação atualizada com sucesso", {
-          id: "alert",
-        });
+        // <-- MUDANÇA: Usando PATCH em vez de PUT, é mais seguro para atualizações
+        await api.patch(`/transacoes/${id}/`, payload);
+        toast.success("Transação atualizada com sucesso!");
       } else {
         await api.post("/transacoes/", payload);
-        toast.success("Transação criada com sucesso", {
-          id: "alert",
-        });
+        toast.success("Transação criada com sucesso!");
       }
-
-      // Redireciona para a lista de festas após sucesso
       navigate("/transacoes");
     } catch (e) {
-      // Trata erro de validação ou conexão
-      console.error("Erro ao salvar:", e.response.data);
-      toast.error("Erro ao salvar a transação. Verifique os campos e tente novamente.", {
-        id: "alert",
-      });
+      // <-- MUDANÇA: Tratamento de erro muito mais detalhado
+      console.error("ERRO DETALHADO AO SALVAR:", e);
+      if (e.response) {
+        console.error("DADOS DA RESPOSTA DO SERVIDOR:", e.response.data);
+        const errorMsg = JSON.stringify(e.response.data);
+        toast.error(`Erro ao salvar: ${errorMsg}`);
+      } else {
+        toast.error("Erro ao salvar. Verifique sua conexão ou o console para mais detalhes.");
+      }
     }
   };
 
