@@ -230,9 +230,9 @@ export default function FormTransacao() {
       origem: transacao.origem || "manual",
       referencia_id: transacao.referencia_id || null,
       parcelado: transacao.parcelado,
-      qtd_parcelas: transacao.parcelado === "sim" && transacao.qtd_parcelas > 0 ? Number(transacao.qtd_parcelas) : null,
-      parcela_atual: transacao.parcela_atual, // <-- MUDANÇA: Incluído para garantir que seja enviado na edição
-      organization: organizationId, // <-- MUDANÇA: Sua correção, agora integrada
+      qtd_parcelas: transacao.parcelado === "sim" && transacao.qtd_parcelas > 0 ? Number(transacao.qtd_parcelas) : 1,
+      parcela_atual: 1,
+      organization: organizationId,
     };
 
 
@@ -241,7 +241,6 @@ export default function FormTransacao() {
         if (transacao.locacao) {
           await api.patch(`/locacoes/${transacao.locacao}/`, { pagamento: transacao.pagamento });
         }
-        // <-- MUDANÇA: Usando PATCH em vez de PUT, é mais seguro para atualizações
         await api.patch(`/transacoes/${id}/`, payload);
         toast.success("Transação atualizada com sucesso!");
       } else {
