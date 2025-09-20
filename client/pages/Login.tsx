@@ -15,7 +15,7 @@ export default function Index() {
     e.preventDefault();
     try {
       const response = await api.post("login/", {
-        email,      
+        email,
         password
       });
       const { token, organization_id } = response.data;
@@ -28,7 +28,7 @@ export default function Index() {
       toast.error('Usuário ou senha inválidos');
     }
   };
-  
+
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Seção preta */}
@@ -54,6 +54,9 @@ export default function Index() {
           <h2 className="font-exo text-[26px] lg:text-[30px] font-bold leading-[36px] text-gray-900 text-center mb-6">
             Login
           </h2>
+          <p className="font-exo justify-start text-[14px] lg:text-[14px] leading-[20px] text-gray-900 text-center mb-6">
+            Para acessar a conta de demonstração, use:<br /> usuário <strong>demo@gmail.com</strong> e a senha <strong>@demo123</strong>
+          </p>
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email Field */}
             <div className="space-y-1">
