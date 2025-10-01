@@ -54,9 +54,21 @@ export default function Index() {
           <h2 className="font-exo text-[26px] lg:text-[30px] font-bold leading-[36px] text-gray-900 text-center mb-6">
             Login
           </h2>
-          <p className="font-exo justify-start text-[14px] lg:text-[14px] leading-[20px] text-gray-900 text-center mb-6">
-            Para acessar a conta de demonstração, use:<br /> usuário <strong>demo@gmail.com</strong> e a senha <strong>@demo123</strong>
+          <p className="font-exo justify-start text-[14px] lg:text-[14px] leading-[20px] font-mediumtext-gray-900 text-center mb-3">
+            Para acessar a <strong>demonstração</strong>, clique no botão abaixo:
           </p>
+          {/* Botão de login demo */}
+          <button
+            onClick={() => {
+              setEmail("demo@gmail.com");
+              setPassword("@demo123");
+              // dispara o submit automático
+              handleSubmit(new Event("submit") as any);
+            }}
+            className="mb-6 w-full h-10 font-exo text-sm font-medium bg-[#00c3cf] rounded-md hover:bg-[#00aeb8] focus:outline-none focus:ring-offset-2 transition-colors duration-200"
+          >
+            Acessar conta demo
+          </button>
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email Field */}
             <div className="space-y-1">
