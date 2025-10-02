@@ -17,44 +17,46 @@ export function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
+
+
   const menuItems = [
     { path: "/", icon: "home", label: "Home" },
     { path: "/clientes", icon: "users", label: "Clientes" },
-    { path: "/festas", icon: "paries", label: "Festas"},
+    { path: "/festas", icon: "paries", label: "Festas" },
     { path: "/brinquedos", icon: "toys", label: "Brinquedos" },
-    { path: "/transacoes", icon: "transactions", label: "Transações"},
-    { path: "/dashboard", icon: "dasboard", label: "Dasboard"},
+    { path: "/transacoes", icon: "transactions", label: "Transações" },
+    { path: "/dashboard", icon: "dasboard", label: "Dasboard" },
   ];
 
   const getIcon = (iconName: string, isActive: boolean) => {
     const strokeColor = isActive ? "#00d17d" : "white";
-      switch (iconName) {
-        case "users":
-          return (
-            <LuUsers style={{ color: strokeColor, width: 27, height: 30 }}/>
-          );
-        case "home":
-          return (
-            <RiHomeSmile2Line style={{ color: strokeColor, width: 27, height: 30 }} />
-          )
-        case "paries":
-          return (
-            <TbCake style={{ color: strokeColor, width: 27, height: 30 }}/>
-          )
-        case "toys":
-          return (
-            <TbHorseToy style={{ color: strokeColor, width: 27, height: 30 }} />
-          )
-        case "transactions":
-          return (
-            <TbCashRegister style={{ color: strokeColor, width: 27, height: 30 }} />
-          )
-        case "dasboard":
-          return (
-            <LuLayoutDashboard style={{ color: strokeColor, width: 26, height: 30 }} />
-          )
-        default:
-          return null;
+    switch (iconName) {
+      case "users":
+        return (
+          <LuUsers style={{ color: strokeColor, width: 27, height: 30 }} />
+        );
+      case "home":
+        return (
+          <RiHomeSmile2Line style={{ color: strokeColor, width: 27, height: 30 }} />
+        )
+      case "paries":
+        return (
+          <TbCake style={{ color: strokeColor, width: 27, height: 30 }} />
+        )
+      case "toys":
+        return (
+          <TbHorseToy style={{ color: strokeColor, width: 27, height: 30 }} />
+        )
+      case "transactions":
+        return (
+          <TbCashRegister style={{ color: strokeColor, width: 27, height: 30 }} />
+        )
+      case "dasboard":
+        return (
+          <LuLayoutDashboard style={{ color: strokeColor, width: 26, height: 30 }} />
+        )
+      default:
+        return null;
     }
   };
 
@@ -86,36 +88,35 @@ export function Sidebar() {
       {/* Sidebar mobile */}
       <div
         id="sidebar"
-        className={`md:hidden fixed top-0 left-0 h-screen w-[240px] bg-black shadow transition-transform duration-300 z-50 ${
-          isMobileOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`md:hidden fixed top-0 left-0 h-screen w-[240px] bg-black shadow transition-transform duration-300 z-50 ${isMobileOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className={`flex flex-col justify-between min-h-screen bg-black shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.10),0px_4px_6px_-4px_rgba(0,0,0,0.10)] transition-all duration-300 w-[240px]`}>
           <div>
             {/* Header */}
             <div className="flex pt-[30px] pb-3 flex-col items-start self-stretch">
-                <div className="flex items-center gap-2 w-full px-4">
-                  <div className="flex w-[55px] max-w-[65.4px] flex-col items-start flex-shrink-0">
-                    <div className="flex max-w-[55px] flex-col items-start self-stretch">
-                      <div className="flex h-[55px] flex-col justify-center items-center self-stretch">
-                        <img
-                          src={logo}
-                          alt="Happy Kids Logo"
-                          className="h-[55px] flex-shrink-0 self-stretch"
-                          style={{ marginRight: "-5px" }}
-                        />
-                      </div>
+              <div className="flex items-center gap-2 w-full px-4">
+                <div className="flex w-[55px] max-w-[65.4px] flex-col items-start flex-shrink-0">
+                  <div className="flex max-w-[55px] flex-col items-start self-stretch">
+                    <div className="flex h-[55px] flex-col justify-center items-center self-stretch">
+                      <img
+                        src={logo}
+                        alt="Happy Kids Logo"
+                        className="h-[55px] flex-shrink-0 self-stretch"
+                        style={{ marginRight: "-5px" }}
+                      />
                     </div>
                   </div>
-                  <div
-                    className="flex-1 text-white font-bold text-lg"
-                    style={{ marginLeft: "3px" }}
-                  >
-                    Happy Kids
-                  </div>
                 </div>
+                <div
+                  className="flex-1 text-white font-bold text-lg"
+                  style={{ marginLeft: "3px" }}
+                >
+                  Happy Kids
+                </div>
+              </div>
             </div>
-            
+
             {/* Navigation */}
             <div className="flex flex-col items-start self-stretch">
               <div
@@ -133,7 +134,7 @@ export function Sidebar() {
                       >
                         <Link
                           to={item.path}
-                          className={`flex items-center hover:bg-gray-800 rounded-xl transition-colors py-3 px-4 gap-3 w-full ${isActive ? "bg-gray-800" : ""}`}title={item.label}
+                          className={`flex items-center hover:bg-gray-800 rounded-xl transition-colors py-3 px-4 gap-3 w-full ${isActive ? "bg-gray-800" : ""}`} title={item.label}
                         >
                           {getIcon(item.icon, isActive)}
                           <span className="text-white font-medium text-sm">{item.label}</span>
@@ -144,7 +145,7 @@ export function Sidebar() {
                 })}
               </div>
             </div>
-              
+
             {/* Logout Button */}
             <div className="flex py-5 flex-col items-start">
               <div
@@ -195,14 +196,13 @@ export function Sidebar() {
               </div>
             </div>
           </div>
-          </div>
+        </div>
       </div>
 
       {/* Sidebar desktop */}
       <div
-        className={`hidden md:flex flex-col items-start min-h-screen bg-gray-800 shadow transition-all duration-300 ${
-          isExpanded ? "w-[240px]" : "w-[56px]"
-        }`}
+        className={`hidden md:flex flex-col items-start min-h-screen bg-gray-800 shadow transition-all duration-300 ${isExpanded ? "w-[240px]" : "w-[56px]"
+          }`}
       >
         <div className={`flex flex-col items-start min-h-screen bg-black shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.10),0px_4px_6px_-4px_rgba(0,0,0,0.10)] transition-all duration-300 ${isExpanded ? "w-[240px]" : "w-[56px]"}`}>
           <div className="flex flex-col justify-start min-h-screen self-stretch">
@@ -259,7 +259,7 @@ export function Sidebar() {
                   </div>
                   <button
                     onClick={() => setIsExpanded(!isExpanded)}
-                      className="p-1 text-white hover:bg-gray-800 rounded-lg transition-colors w-8 h-8 flex items-center justify-center"
+                    className="p-1 text-white hover:bg-gray-800 rounded-lg transition-colors w-8 h-8 flex items-center justify-center"
                     title="Expandir menu"
                   >
                     <svg
@@ -280,7 +280,7 @@ export function Sidebar() {
                 </div>
               )}
             </div>
-            
+
             {/* Navigation */}
             <div className="flex flex-col items-start self-stretch">
               <div
@@ -298,8 +298,7 @@ export function Sidebar() {
                       >
                         <Link
                           to={item.path}
-                          className={`flex items-center hover:bg-gray-800 rounded-xl transition-colors ${
-                            isExpanded
+                          className={`flex items-center hover:bg-gray-800 rounded-xl transition-colors ${isExpanded
                               ? "py-3 px-4 gap-3 w-full"
                               : "py-2 px-[10px] flex-1"
                             } ${isActive ? "bg-gray-800" : ""}`}
@@ -318,16 +317,15 @@ export function Sidebar() {
                 })}
               </div>
             </div>
-              
+
             {/* Logout Button */}
             <div className="mt-auto mb-5">
               <div
                 className={`flex ${isExpanded ? "px-5 ml-8 w-full" : "pl-[6px] pr-[13.5px] justify-center"} items-start`}
               >
-                <button 
-                  className={`flex items-center over:bg-gray-800 rounded-xl transition-colors ${
-                    isExpanded ? "py-3 px-4 gap-3 w-full" : "p-2"
-                  }`}
+                <button
+                  className={`flex items-center over:bg-gray-800 rounded-xl transition-colors ${isExpanded ? "py-3 px-4 gap-3 w-full" : "p-2"
+                    }`}
                   title={!isExpanded ? "Sair" : undefined}
                   onClick={() => {
                     removeToken();
