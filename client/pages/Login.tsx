@@ -16,7 +16,7 @@ export default function Index() {
     demoEmail?: string,
     demoPassword?: string
   ) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
 
     const userEmail = demoEmail ?? email;
     const userPassword = demoPassword ?? password;
