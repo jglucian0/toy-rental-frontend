@@ -11,12 +11,20 @@ export default function Index() {
   const navigate = useNavigate();
 
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (
+    e?: React.FormEvent,
+    demoEmail?: string,
+    demoPassword?: string
+  ) => {
     e.preventDefault();
+
+    const userEmail = demoEmail ?? email;
+    const userPassword = demoPassword ?? password;
+
     try {
       const response = await api.post("login/", {
-        email,
-        password
+        email: userEmail,
+        password: userPassword,
       });
       const { token, organization_id } = response.data;
       setToken(token);
@@ -59,16 +67,7 @@ export default function Index() {
           </p>
           {/* Botão de login demo */}
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              handleSubmit({
-                preventDefault: () => { },
-                target: {
-                  email: { value: "demo@gmail.com" },
-                  password: { value: "@demo123" },
-                },
-              } as any);
-            }}
+            onClick={() => handleSubmit(undefined, "demo@gmail.com", "@demo123")}
             className="mb-6 w-full h-10 font-exo text-sm font-medium bg-[#00c3cf] rounded-md hover:bg-[#00aeb8] focus:outline-none focus:ring-offset-2 transition-colors duration-200"
           >
             Acessar conta demo
