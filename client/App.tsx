@@ -28,6 +28,10 @@ const App = () => (
       <Sonner position="top-center" richColors />
       <BrowserRouter>
         <Routes>
+          {/* Página pública */}
+          <Route path="/login" element={<Login />} />
+          <Route path="*" element={<NotFound />} />
+
           {/* Rotas privadas */}
           <Route element={<PrivateRoute />}>
             <Route path="/" element={<Home />} />
