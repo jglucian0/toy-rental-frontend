@@ -59,11 +59,15 @@ export default function Index() {
           </p>
           {/* Botão de login demo */}
           <button
-            onClick={() => {
-              setEmail("demo@gmail.com");
-              setPassword("@demo123");
-              // dispara o submit automático
-              handleSubmit(new Event("submit") as any);
+            onClick={(e) => {
+              e.preventDefault();
+              handleSubmit({
+                preventDefault: () => { },
+                target: {
+                  email: { value: "demo@gmail.com" },
+                  password: { value: "@demo123" },
+                },
+              } as any);
             }}
             className="mb-6 w-full h-10 font-exo text-sm font-medium bg-[#00c3cf] rounded-md hover:bg-[#00aeb8] focus:outline-none focus:ring-offset-2 transition-colors duration-200"
           >
