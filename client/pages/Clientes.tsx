@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import api from '../services/api';
 import { formatDocument, formatPhone, normalize } from '../lib/formatters';
 import { NewPartyIcon, EditIcon, SearchIcon, NewMoreIcon } from "../components/Icons";
+import { isAuthenticated } from "../auth/auth"; 
 
 export default function Clientes() {
   const navigate = useNavigate();
@@ -12,11 +13,22 @@ export default function Clientes() {
   const [clientes, setClientes] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Busca clientes ao carregar componente
+  // Busca clientes ao carregar componente e estiver autenticado
   useEffect(() => {
+    if (!isAuthenticated()) {
+      console.warn("Tentativa de buscar clientes sem autenticação.");
+      return;
+    }
+
     api.get('/clientes/')
       .then(res => setClientes(res.data))
-      .catch(console.error); // Só loga erros, sem bloquear UI
+      .catch(error => {
+        if (error.response && error.response.status === 401) {
+          console.log("Requisição de clientes bloqueada (401). Redirecionando...");
+        } else {
+          console.error("Erro ao buscar clientes:", error);
+        }
+      });
   }, []);
 
   // Termo de busca normalizado (removendo acentos, espaços etc)
