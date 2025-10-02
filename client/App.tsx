@@ -28,10 +28,6 @@ const App = () => (
       <Sonner position="top-center" richColors />
       <BrowserRouter>
         <Routes>
-          {/* Página pública */}
-          <Route path="/login" element={<Login />} />
-          <Route path="*" element={<NotFound />} />
-
           {/* Rotas privadas */}
           <Route element={<PrivateRoute />}>
             <Route path="/" element={<Home />} />
@@ -39,16 +35,16 @@ const App = () => (
             <Route path="/clientes/novo" element={<FormCliente />} />
             <Route path="/clientes/editar/:id" element={<FormCliente />} />
             <Route path="/festas" element={<Festas />} />
+            <Route path="/festas/nova" element={<FormFesta />} />
+            <Route path="/festas/editar/:id" element={<FormFesta />} />
+            <Route path="/brinquedos" element={<Brinquedos />} />
+            <Route path="/brinquedos/novo" element={<FormBrinquedo />} />
+            <Route path="/brinquedos/editar/:id" element={<FormBrinquedo />} />
+            <Route path="/transacoes" element={<Transacoes />} />
+            <Route path="/transacoes/nova" element={<FormTransacoes />} />
+            <Route path="/transacoes/editar/:id" element={<FormTransacoes />} />
+            <Route path="/dashboard" element={<Dashboard />} />
           </Route>
-          <Route path="/festas/nova" element={<FormFesta />} />
-          <Route path="/festas/editar/:id" element={<FormFesta />} />
-          <Route path="/brinquedos" element={<Brinquedos />} />
-          <Route path="/brinquedos/novo" element={<FormBrinquedo />} />
-          <Route path="/brinquedos/editar/:id" element={<FormBrinquedo />} />
-          <Route path="/transacoes" element={<Transacoes />} />
-          <Route path="/transacoes/nova" element={<FormTransacoes />} />
-          <Route path="/transacoes/editar/:id" element={<FormTransacoes />} />
-          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
